@@ -209,7 +209,8 @@ if __name__ == "__main__":
                             if type == 'txt2img':
                                 try:
                                     # Call txt2img
-                                    output = model(prompt, negative_prompt, cfg_scale, denoising_strength).images[0]
+                                    output = model(prompt=prompt, negative_prompt=negative_prompt, cfg_scale=cfg_scale,
+                                                   steps=50).images[0]
                                     # Generate image name as increment of previous image
                                     output.save(folder + 'output_' + str(output_counter) + '.png')
                                     output_counter += 1
