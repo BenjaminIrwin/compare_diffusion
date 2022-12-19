@@ -194,15 +194,21 @@ if __name__ == "__main__":
         folder = os.path.join('output', os.path.basename(model_path))
         model = DiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
         model = model.to("cuda")
+        print('loaded_model: ' + model_path)
         for prompt in prompts:
+            print('prompt: ' + prompt)
             folder = os.path.join(folder, 'pmt_' + prompt.lower().replace(' ', '_'))
             for negative_prompt in negative_prompts:
+                print('negative_prompt: ' + negative_prompt)
                 folder = os.path.join(folder, 'neg_pmt_' + negative_prompt.lower().replace(' ', '_'))
                 for cfg_scale in cfg_scale_list:
+                    print('cfg_scale: ' + str(cfg_scale))
                     folder = os.path.join(folder, 'cfg_' + str(cfg_scale))
                     for denoising_strength in denoising_strength_list:
+                        print('denoising_strength: ' + str(denoising_strength))
                         folder = os.path.join(folder, 'dns_' + str(denoising_strength))
                         for seed in seeds:
+                            print('seed: ' + str(seed))
                             folder = os.path.join(folder, 'seed_' + str(seed))
                             try:
                                 if type == 'txt2img':
