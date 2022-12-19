@@ -208,11 +208,8 @@ if __name__ == "__main__":
                             folder = os.path.join(folder, 'seed_' + str(seed))
                             if type == 'txt2img':
                                 try:
-                                    print('LOADED MODEL TYPE: ')
-                                    print(type(model))
                                     # Call txt2img
-                                    output = model(prompt=prompt, negative_prompt=negative_prompt, cfg_scale=cfg_scale,
-                                                   steps=50).images[0]
+                                    output = model(prompt=prompt).images[0]
                                     # Generate image name as increment of previous image
                                     output.save(folder + 'output_' + str(output_counter) + '.png')
                                     output_counter += 1
