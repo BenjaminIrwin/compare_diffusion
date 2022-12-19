@@ -213,7 +213,7 @@ if __name__ == "__main__":
                                     # Call txt2img
                                     output = model(prompt=prompt).images[0]
                                     # Generate image name as increment of previous image
-                                    output.save(folder + 'output_' + str(output_counter) + '.png')
+                                    output.save(folder + '/output_' + str(output_counter) + '.png')
                                     output_counter += 1
                                     terminal_progress_bar(output_counter, num_images_to_generate)
                                 except Exception as e:
@@ -228,7 +228,7 @@ if __name__ == "__main__":
                                             # Call inpaint
                                             mask = masks[idx]
                                             output = model(prompt=prompt, image=image, mask_image=mask).images[0]
-                                            output.save(folder + image)
+                                            output.save(folder + '/' + image)
                                             output_counter += 1
                                             terminal_progress_bar(output_counter, num_images_to_generate)
                                         elif type == 'img2img':
@@ -236,7 +236,7 @@ if __name__ == "__main__":
                                             output = \
                                                 model(image, prompt, negative_prompt, cfg_scale,
                                                       denoising_strength).images[0]
-                                            output.save(folder + image)
+                                            output.save(folder + '/' + image)
                                             output_counter += 1
                                             terminal_progress_bar(output_counter, num_images_to_generate)
                                     except Exception as e:
