@@ -211,38 +211,40 @@ if __name__ == "__main__":
                         for seed in seeds:
                             print('seed: ' + str(seed))
                             folder = os.path.join(folder, 'seed_' + str(seed))
-                            try:
-                                if type == 'txt2img':
+                            if type == 'txt2img':
+                                try:
                                     # Call txt2img
                                     output = model(prompt, negative_prompt, cfg_scale, denoising_strength).images[0]
                                     # Generate image name as increment of previous image
                                     output.save(folder + 'output_' + str(output_counter) + '.png')
                                     output_counter += 1
                                     terminal_progress_bar(output_counter, num_images_to_generate)
-                            except:
-                                print('Error generating image with params: ' + str(prompt) + ' ' + str(negative_prompt)
-                                      + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                            for idx, image in enumerate(images):
-                                try:
-                                    if type == 'inpaint':
-                                        # Call inpaint
-                                        mask = masks[idx]
-                                        output = model(prompt=prompt, image=image, mask_image=mask).images[0]
-                                        output.save(folder + image)
-                                        output_counter += 1
-                                        terminal_progress_bar(output_counter, num_images_to_generate)
-                                    elif type == 'img2img':
-                                        # Call img2img
-                                        output = \
-                                            model(image, prompt, negative_prompt, cfg_scale, denoising_strength).images[
-                                                0]
-                                        output.save(folder + image)
-                                        output_counter += 1
-                                        terminal_progress_bar(output_counter, num_images_to_generate)
                                 except:
                                     print('Error generating image with params: ' + str(prompt) + ' ' + str(
                                         negative_prompt)
                                           + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                            else:
+                                for idx, image in enumerate(images):
+                                    try:
+                                        if type == 'inpaint':
+                                            # Call inpaint
+                                            mask = masks[idx]
+                                            output = model(prompt=prompt, image=image, mask_image=mask).images[0]
+                                            output.save(folder + image)
+                                            output_counter += 1
+                                            terminal_progress_bar(output_counter, num_images_to_generate)
+                                        elif type == 'img2img':
+                                            # Call img2img
+                                            output = \
+                                                model(image, prompt, negative_prompt, cfg_scale,
+                                                      denoising_strength).images[0]
+                                            output.save(folder + image)
+                                            output_counter += 1
+                                            terminal_progress_bar(output_counter, num_images_to_generate)
+                                    except:
+                                        print('Error generating image with params: ' + str(prompt) + ' ' + str(
+                                            negative_prompt)
+                                              + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
     #
     # print('Generated ' + str(output_counter) + ' images.')
     #
