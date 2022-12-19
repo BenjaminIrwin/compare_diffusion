@@ -148,6 +148,7 @@ parser.add_argument('--seeds', type=int, nargs='*', default=[1])
 
 if __name__ == "__main__":
     args = parser.parse_args()
+    print(args.prompts)
 
     type = args.type
     if type == 'img2img':
