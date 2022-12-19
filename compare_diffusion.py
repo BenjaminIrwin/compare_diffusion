@@ -133,6 +133,7 @@ def clean(image_files, mask_files):
 
 
 parser = argparse.ArgumentParser(description='Stable Diffusion Output Comparison')
+parser.add_argument('--hf_token', type=str, required=True)
 parser.add_argument('--type', type=str, required=True, choices=['img2img', 'txt2img', 'inpaint'])
 parser.add_argument('--rows', type=str, required=True)
 parser.add_argument('--cols', type=str, required=True)
@@ -165,6 +166,7 @@ if __name__ == "__main__":
     else:
         negative_prompts = ['']
     seeds = args.seeds
+    hf_token = args.hf_token
 
     print(locals())
 
@@ -190,8 +192,7 @@ if __name__ == "__main__":
 
     for model_path in model_paths:
         folder = os.path.join('output', os.path.basename(model_path))
-        model = DiffusionPipeline.from_pretrained(model_path, torch_dtype=torch.float16,
-                                                               revision="fp16")
+        model = DiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
         model = model.to("cuda")
         for prompt in prompts:
             folder = os.path.join(folder, 'pmt_' + prompt.lower().replace(' ', '_'))
