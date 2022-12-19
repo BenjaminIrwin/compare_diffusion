@@ -197,19 +197,14 @@ if __name__ == "__main__":
         model = model.to("cuda")
         print('loaded_model: ' + model_path)
         for prompt in prompts:
-            print('prompt: ' + prompt)
             folder = os.path.join(folder, 'pmt_' + prompt.lower().replace(' ', '_'))
             for negative_prompt in negative_prompts:
-                print('negative_prompt: ' + negative_prompt)
                 folder = os.path.join(folder, 'neg_pmt_' + negative_prompt.lower().replace(' ', '_'))
                 for cfg_scale in cfg_scale_list:
-                    print('cfg_scale: ' + str(cfg_scale))
                     folder = os.path.join(folder, 'cfg_' + str(cfg_scale))
                     for denoising_strength in denoising_strength_list:
-                        print('denoising_strength: ' + str(denoising_strength))
                         folder = os.path.join(folder, 'dns_' + str(denoising_strength))
                         for seed in seeds:
-                            print('seed: ' + str(seed))
                             folder = os.path.join(folder, 'seed_' + str(seed))
                             if type == 'txt2img':
                                 try:
@@ -219,10 +214,11 @@ if __name__ == "__main__":
                                     output.save(folder + 'output_' + str(output_counter) + '.png')
                                     output_counter += 1
                                     terminal_progress_bar(output_counter, num_images_to_generate)
-                                except:
+                                except Exception as e:
                                     print('Error generating image with params: ' + str(prompt) + ' ' + str(
                                         negative_prompt)
                                           + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                    print(e)
                             else:
                                 for idx, image in enumerate(images):
                                     try:
@@ -245,6 +241,8 @@ if __name__ == "__main__":
                                         print('Error generating image with params: ' + str(prompt) + ' ' + str(
                                             negative_prompt)
                                               + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                        print(e)
+
     #
     # print('Generated ' + str(output_counter) + ' images.')
     #
