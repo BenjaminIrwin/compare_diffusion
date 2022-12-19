@@ -237,7 +237,7 @@ if __name__ == "__main__":
                                             output.save(folder + image)
                                             output_counter += 1
                                             terminal_progress_bar(output_counter, num_images_to_generate)
-                                    except:
+                                    except Exception as e:
                                         print('Error generating image with params: ' + str(prompt) + ' ' + str(
                                             negative_prompt)
                                               + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
