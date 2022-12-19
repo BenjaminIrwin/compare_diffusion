@@ -161,7 +161,7 @@ if __name__ == "__main__":
     model_paths = args.models
     cfg_scale_list = args.cfg_scale_list
     denoising_strength_list = args.denoising_strength_list
-    prompts = complete_sentences(args.prompts)
+    prompts = args.prompts
     if args.negative_prompts:
         negative_prompts = complete_sentences(args.negative_prompts)
     else:
