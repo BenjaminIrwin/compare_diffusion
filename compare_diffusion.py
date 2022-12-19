@@ -195,7 +195,7 @@ if __name__ == "__main__":
             print(f'Number of input masks: {len(masks)}')
 
     for model_path in model_paths:
-        output_folder_name = 'output1'
+        output_folder_name = 'output2'
         model = DiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
         model = model.to("cuda")
         print('loaded_model: ' + model_path)
