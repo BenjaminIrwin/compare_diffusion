@@ -195,20 +195,18 @@ if __name__ == "__main__":
             print(f'Number of input masks: {len(masks)}')
 
     for model_path in model_paths:
-        output_folder_name = 'output'
+        output_folder_name = 'output1'
         model = DiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
         model = model.to("cuda")
         print('loaded_model: ' + model_path)
         for prompt in prompts:
-            folder = os.path.join(os.path.join(output_folder_name, os.path.basename(model_path)), 'pmt_' + prompt.lower().replace(' ', '_'))
             for negative_prompt in negative_prompts:
-                folder = os.path.join(folder, 'neg_pmt_' + negative_prompt.lower().replace(' ', '_'))
                 for cfg_scale in cfg_scale_list:
-                    folder = os.path.join(folder, 'cfg_' + str(cfg_scale))
                     for denoising_strength in denoising_strength_list:
-                        folder = os.path.join(folder, 'dns_' + str(denoising_strength))
                         for seed in seeds:
-                            folder = os.path.join(folder, 'seed_' + str(seed))
+                            folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                     f'neg_pmt_{negative_prompt}_/cfg_{cfg_scale}/dns_{denoising_strength}/seed_{seed}'
+                            print(folder)
                             create_folder(folder)
                             if type == 'txt2img':
                                 try:
