@@ -166,13 +166,15 @@ if __name__ == "__main__":
         negative_prompts = ['']
     seeds = args.seeds
 
+    print(locals())
+
     output_counter = 0
     num_images_to_generate = len(model_paths) * len(cfg_scale_list) * len(denoising_strength_list) * \
                              len(prompts) * len(negative_prompts) * len(seeds)
     if images:
         num_images_to_generate *= len(images)
 
-    print('**Input parameters**')
+    print('**** Input parameters ****')
     print('Type: ' + type)
     print(f'Number of images to generate: {num_images_to_generate}')
     print(f'Models: {model_paths}')
