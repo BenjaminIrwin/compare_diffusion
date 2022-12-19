@@ -143,7 +143,7 @@ parser.add_argument('--cfg_scale_list', type=float, nargs='+', required=True)
 parser.add_argument('--denoising_strength_list', type=float, nargs='+', required=True)
 parser.add_argument('--prompts', type=str, nargs='+', required=True)
 parser.add_argument('--negative_prompts', type=str, nargs='*')
-parser.add_argument('--seeds', type=int, nargs='*', default=1)
+parser.add_argument('--seeds', type=int, nargs='*', default=[1])
 
 if __name__ == "__main__":
     args = parser.parse_args()
