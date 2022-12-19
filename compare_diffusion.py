@@ -208,6 +208,7 @@ if __name__ == "__main__":
                             folder = os.path.join(folder, 'seed_' + str(seed))
                             if type == 'txt2img':
                                 try:
+                                    print('LOADED MODEL TYPE: ')
                                     print(type(model))
                                     # Call txt2img
                                     output = model(prompt=prompt, negative_prompt=negative_prompt, cfg_scale=cfg_scale,
