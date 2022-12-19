@@ -167,8 +167,24 @@ if __name__ == "__main__":
     seeds = args.seeds
 
     output_counter = 0
-    num_images_to_generate = len(images) * len(model_paths) * len(cfg_scale_list) * len(denoising_strength_list) * \
+    num_images_to_generate = len(model_paths) * len(cfg_scale_list) * len(denoising_strength_list) * \
                              len(prompts) * len(negative_prompts) * len(seeds)
+    if images:
+        num_images_to_generate *= len(images)
+
+    print('**Input parameters**')
+    print('Type: ' + type)
+    print(f'Number of images to generate: {num_images_to_generate}')
+    print(f'Models: {model_paths}')
+    print(f'Cfg_scale_list: {cfg_scale_list}')
+    print(f'Denoising_strength_list: {denoising_strength_list}')
+    print(f'Prompts: {prompts}')
+    print(f'Negative prompts: {negative_prompts}')
+    print(f'Seeds: {seeds}')
+    if images is not None:
+        print(f'Number of input images: {len(images)}')
+        if masks is not None:
+            print(f'Number of input masks: {len(masks)}')
 
     for model_path in model_paths:
         folder = os.path.join('output', os.path.basename(model_path))
@@ -211,7 +227,8 @@ if __name__ == "__main__":
                                     elif type == 'img2img':
                                         # Call img2img
                                         output = \
-                                        model(image, prompt, negative_prompt, cfg_scale, denoising_strength).images[0]
+                                            model(image, prompt, negative_prompt, cfg_scale, denoising_strength).images[
+                                                0]
                                         output.save(folder + image)
                                         output_counter += 1
                                         terminal_progress_bar(output_counter, num_images_to_generate)
