@@ -131,6 +131,9 @@ def clean(image_files, mask_files):
 
     return clean_images, clean_masks
 
+def create_folder(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 parser = argparse.ArgumentParser(description='Stable Diffusion Output Comparison')
 parser.add_argument('--hf_token', type=str, required=True)
@@ -198,14 +201,19 @@ if __name__ == "__main__":
         print('loaded_model: ' + model_path)
         for prompt in prompts:
             folder = os.path.join(folder, 'pmt_' + prompt.lower().replace(' ', '_'))
+            create_folder(folder)
             for negative_prompt in negative_prompts:
                 folder = os.path.join(folder, 'neg_pmt_' + negative_prompt.lower().replace(' ', '_'))
+                create_folder(folder)
                 for cfg_scale in cfg_scale_list:
                     folder = os.path.join(folder, 'cfg_' + str(cfg_scale))
+                    create_folder(folder)
                     for denoising_strength in denoising_strength_list:
                         folder = os.path.join(folder, 'dns_' + str(denoising_strength))
+                        create_folder(folder)
                         for seed in seeds:
                             folder = os.path.join(folder, 'seed_' + str(seed))
+                            create_folder(folder)
                             if type == 'txt2img':
                                 try:
                                     # Call txt2img
