@@ -2,7 +2,7 @@ import argparse
 import os
 
 from PIL import Image
-from diffusers import StableDiffusionPipeline, StableDiffusionInpaintPipeline
+from diffusers import DiffusionPipeline
 import torch
 
 
@@ -190,11 +190,8 @@ if __name__ == "__main__":
 
     for model_path in model_paths:
         folder = os.path.join('output', os.path.basename(model_path))
-        if type == 'inpaint':
-            model = StableDiffusionInpaintPipeline.from_pretrained(model_path, torch_dtype=torch.float16,
-                                                                   revision="fp16")
-        else:
-            model = StableDiffusionPipeline.from_pretrained(model_path, torch_dtype=torch.float16, revision="fp16")
+        model = DiffusionPipeline.from_pretrained(model_path, torch_dtype=torch.float16,
+                                                               revision="fp16")
         model = model.to("cuda")
         for prompt in prompts:
             folder = os.path.join(folder, 'pmt_' + prompt.lower().replace(' ', '_'))
