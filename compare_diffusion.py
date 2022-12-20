@@ -239,26 +239,26 @@ if __name__ == "__main__":
                                          f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/den_{denoising_strength}/seed_{seed}'
                                 create_folder(folder)
                                 for idx, image in enumerate(images):
-                                    try:
-                                        if type == 'inpaint':
-                                            # Call inpaint
-                                            mask = masks[idx]
-                                            output = model(prompt=prompt, image=image, mask_image=mask, guidance_scale=cfg_scale,
+                                    # try:
+                                    if type == 'inpaint':
+                                        # Call inpaint
+                                        mask = masks[idx]
+                                        output = model(prompt=prompt, image=image, mask_image=mask, guidance_scale=cfg_scale,
+                                              generator=generator, strength=denoising_strength).images[0]
+                                        output.save(folder + '/' + image)
+                                        output_counter += 1
+                                        terminal_progress_bar(output_counter, num_images_to_generate)
+                                    elif type == 'img2img':
+                                        # Call img2img
+                                        output = model(prompt=prompt, image=image, guidance_scale=cfg_scale,
                                                   generator=generator, strength=denoising_strength).images[0]
-                                            output.save(folder + '/' + image)
-                                            output_counter += 1
-                                            terminal_progress_bar(output_counter, num_images_to_generate)
-                                        elif type == 'img2img':
-                                            # Call img2img
-                                            output = model(prompt=prompt, image=image, guidance_scale=cfg_scale,
-                                                      generator=generator, strength=denoising_strength).images[0]
-                                            output.save(folder + '/' + image)
-                                            output_counter += 1
-                                            terminal_progress_bar(output_counter, num_images_to_generate)
-                                    except Exception as e:
-                                        print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                            negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                                        print(e)
+                                        output.save(folder + '/' + image)
+                                        output_counter += 1
+                                        terminal_progress_bar(output_counter, num_images_to_generate)
+                                    # except Exception as e:
+                                    #     print('Error generating image with params: ' + str(prompt) + ' ' + str(
+                                    #         negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                    #     print(e)
 
     #
     # print('Generated ' + str(output_counter) + ' images.')
