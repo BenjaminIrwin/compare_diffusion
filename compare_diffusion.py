@@ -146,7 +146,7 @@ parser.add_argument('--models', type=str, nargs='+', required=True)
 parser.add_argument('--cfg_scale_list', type=float, nargs='+', required=True)
 parser.add_argument('--denoising_strength_list', type=float, nargs='+', required=True)
 parser.add_argument('--prompts', type=str, nargs='+', required=True)
-parser.add_argument('--negative_prompts', type=str, nargs='*')
+parser.add_argument('--negative_prompts', type=str, nargs='*', default=[''])
 parser.add_argument('--seeds', type=int, nargs='*', default=[1])
 
 if __name__ == "__main__":
@@ -165,10 +165,7 @@ if __name__ == "__main__":
     cfg_scale_list = args.cfg_scale_list
     denoising_strength_list = args.denoising_strength_list
     prompts = args.prompts
-    if args.negative_prompts:
-        negative_prompts = args.negative_prompts
-    else:
-        negative_prompts = ['']
+    negative_prompts = args.negative_prompts
     seeds = args.seeds
     hf_token = args.hf_token
 
