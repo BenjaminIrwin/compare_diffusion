@@ -136,6 +136,39 @@ def create_folder(path):
     if not os.path.exists(path):
         os.makedirs(path)
 
+
+def load_files(paths, section_param, subsection_param, row_param, column_param):
+    # Create an empty dictionary to store the sections and subsections
+    sections = {}
+
+    # Iterate through each path in the list
+    for path in paths:
+        # Split the path into a list of components using '/' as the delimiter
+        components = path.split('/')
+
+        # Extract the values for the section, subsection, row, and column parameters
+        section = components[components.index(section_param) + 1]
+        subsection = components[components.index(subsection_param) + 1]
+        row = components[components.index(row_param) + 1]
+        column = components[components.index(column_param) + 1]
+
+        # If the section doesn't already exist in the dictionary, add it
+        if section not in sections:
+            sections[section] = {}
+
+        # If the subsection doesn't already exist in the dictionary, add it
+        if subsection not in sections[section]:
+            sections[section][subsection] = []
+
+        # If the row doesn't already exist in the subsection, add it
+        if len(sections[section][subsection]) < row:
+            sections[section][subsection].append([])
+
+        # Add the path to the appropriate row and column in the subsection
+        sections[section][subsection][row][column] = path
+
+    return sections
+
 parser = argparse.ArgumentParser(description='Stable Diffusion Output Comparison')
 parser.add_argument('--hf_token', type=str, required=True)
 parser.add_argument('--type', type=str, required=True, choices=['img2img', 'txt2img', 'inpaint'])
@@ -149,6 +182,9 @@ parser.add_argument('--denoising_strength_list', type=float, nargs='+', required
 parser.add_argument('--prompts', type=str, nargs='+', required=True)
 parser.add_argument('--negative_prompts', type=str, nargs='*', default=[''])
 parser.add_argument('--seeds', type=int, nargs='*', default=[1])
+
+# /content/compare_diffusion/output4/dreamlike-diffusion-1.0/pmt_a cat eating food/neg_pmt_tongue/cfg_7.5/den_0.75/seed_2/i000000025.jpg
+# /content/compare_diffusion/output4/dreamlike-diffusion-1.0/pmt_a cat eating food/neg_pmt_tongue/cfg_7.5/den_0.75/seed_2/i000000026.jpg
 
 if __name__ == "__main__":
     args = parser.parse_args()
@@ -218,7 +254,7 @@ if __name__ == "__main__":
                         for seed in seeds:
                             generator = torch.Generator("cuda").manual_seed(seed)
                             if type == 'txt2img':
-                                folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                folder = f'{output_folder_name}/model_{model_path.split("/")[-1]}/pmt_{prompt}/' \
                                          f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/seed_{seed}'
                                 create_folder(folder)
                                 try:
@@ -235,7 +271,7 @@ if __name__ == "__main__":
                                           + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                     print(e)
                             else:
-                                folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                folder = f'model_{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
                                          f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/den_{denoising_strength}/seed_{seed}'
                                 create_folder(folder)
                                 for idx, image in enumerate(images):
@@ -265,7 +301,8 @@ if __name__ == "__main__":
     #
     # print('Generated ' + str(output_counter) + ' images.')
     #
-    # image_paths = get_all_images_in_subtree('results')
+    image_paths = get_all_images_in_subtree('results')
+    files = load_files(image_paths)
 
     # Make report first page
 
