@@ -240,17 +240,18 @@ if __name__ == "__main__":
                                 create_folder(folder)
                                 for idx, image in enumerate(images):
                                     # try:
+                                    pil_image = Image.open(image)
                                     if type == 'inpaint':
                                         # Call inpaint
-                                        mask = masks[idx]
-                                        output = model(prompt=prompt, image=image, mask_image=mask, guidance_scale=cfg_scale,
+                                        pil_mask = Image.open(masks[idx])
+                                        output = model(prompt=prompt, image=pil_image, mask_image=pil_mask, guidance_scale=cfg_scale,
                                               generator=generator, strength=denoising_strength).images[0]
                                         output.save(folder + '/' + image)
                                         output_counter += 1
                                         terminal_progress_bar(output_counter, num_images_to_generate)
                                     elif type == 'img2img':
                                         # Call img2img
-                                        output = model(prompt=prompt, image=image, guidance_scale=cfg_scale,
+                                        output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
                                                   generator=generator, strength=denoising_strength).images[0]
                                         output.save(folder + '/' + image)
                                         output_counter += 1
