@@ -154,6 +154,10 @@ if __name__ == "__main__":
     print(args)
 
     type = args.type
+
+    print('Loading images')
+    print(get_image_paths('input/images'))
+
     if type == 'img2img':
         images, masks = [image_path for image_path in get_image_paths('input/images') if validate(image_path)], None
     elif type == 'inpaint':
