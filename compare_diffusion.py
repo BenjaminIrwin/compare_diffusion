@@ -166,7 +166,7 @@ if __name__ == "__main__":
     denoising_strength_list = args.denoising_strength_list
     prompts = args.prompts
     if args.negative_prompts:
-        negative_prompts = complete_sentences(args.negative_prompts)
+        negative_prompts = args.negative_prompts
     else:
         negative_prompts = ['']
     seeds = args.seeds
