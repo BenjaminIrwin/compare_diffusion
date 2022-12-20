@@ -200,50 +200,49 @@ if __name__ == "__main__":
         model = model.to("cuda")
         print('loaded_model: ' + model_path)
         for prompt in prompts:
-            for negative_prompt in negative_prompts:
-                for cfg_scale in cfg_scale_list:
-                    for denoising_strength in denoising_strength_list:
-                        for seed in seeds:
-                            folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
-                                     f'neg_pmt_{negative_prompt}_/cfg_{cfg_scale}/dns_{denoising_strength}/seed_{seed}'
-                            print(folder)
-                            create_folder(folder)
-                            if type == 'txt2img':
+            for cfg_scale in cfg_scale_list:
+                for denoising_strength in denoising_strength_list:
+                    for seed in seeds:
+                        folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                 f'cfg_{cfg_scale}/dns_{denoising_strength}/seed_{seed}'
+                        print(folder)
+                        create_folder(folder)
+                        generator = torch.Generator("cuda").manual_seed(seed)
+                        if type == 'txt2img':
+                            try:
+                                # Call txt2img
+                                output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator).images[0]
+                                # Generate image name as increment of previous image
+                                output.save(folder + '/output_' + str(output_counter) + '.png')
+                                output_counter += 1
+                                terminal_progress_bar(output_counter, num_images_to_generate)
+                            except Exception as e:
+                                print('Error generating image with params: ' + str(prompt) + ' '
+                                      + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                print(e)
+                        else:
+                            for idx, image in enumerate(images):
                                 try:
-                                    # Call txt2img
-                                    output = model(prompt=prompt).images[0]
-                                    # Generate image name as increment of previous image
-                                    output.save(folder + '/output_' + str(output_counter) + '.png')
-                                    output_counter += 1
-                                    terminal_progress_bar(output_counter, num_images_to_generate)
+                                    if type == 'inpaint':
+                                        # Call inpaint
+                                        mask = masks[idx]
+                                        output = model(prompt=prompt, image=image, mask_image=mask, guidance_scale=cfg_scale,
+                                                       generator=generator).images[0]
+                                        output.save(folder + '/' + image)
+                                        output_counter += 1
+                                        terminal_progress_bar(output_counter, num_images_to_generate)
+                                    elif type == 'img2img':
+                                        # Call img2img
+                                        output = \
+                                            model(image, prompt, cfg_scale,
+                                                  denoising_strength).images[0]
+                                        output.save(folder + '/' + image)
+                                        output_counter += 1
+                                        terminal_progress_bar(output_counter, num_images_to_generate)
                                 except Exception as e:
-                                    print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                        negative_prompt)
+                                    print('Error generating image with params: ' + str(prompt)
                                           + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                     print(e)
-                            else:
-                                for idx, image in enumerate(images):
-                                    try:
-                                        if type == 'inpaint':
-                                            # Call inpaint
-                                            mask = masks[idx]
-                                            output = model(prompt=prompt, image=image, mask_image=mask).images[0]
-                                            output.save(folder + '/' + image)
-                                            output_counter += 1
-                                            terminal_progress_bar(output_counter, num_images_to_generate)
-                                        elif type == 'img2img':
-                                            # Call img2img
-                                            output = \
-                                                model(image, prompt, negative_prompt, cfg_scale,
-                                                      denoising_strength).images[0]
-                                            output.save(folder + '/' + image)
-                                            output_counter += 1
-                                            terminal_progress_bar(output_counter, num_images_to_generate)
-                                    except Exception as e:
-                                        print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                            negative_prompt)
-                                              + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                                        print(e)
 
     #
     # print('Generated ' + str(output_counter) + ' images.')
