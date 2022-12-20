@@ -163,7 +163,10 @@ if __name__ == "__main__":
 
     model_paths = args.models
     cfg_scale_list = args.cfg_scale_list
-    denoising_strength_list = args.denoising_strength_list
+    if type == 'txt2img':
+        denoising_strength_list = [0.0]
+    else:
+        denoising_strength_list = args.denoising_strength_list
     prompts = args.prompts
     negative_prompts = args.negative_prompts
     seeds = args.seeds
@@ -192,7 +195,7 @@ if __name__ == "__main__":
             print(f'Number of input masks: {len(masks)}')
 
     for model_path in model_paths:
-        output_folder_name = 'output2'
+        output_folder_name = 'output3'
         if type == 'txt2img':
             model = StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
         else:
@@ -204,12 +207,11 @@ if __name__ == "__main__":
                 for cfg_scale in cfg_scale_list:
                     for denoising_strength in denoising_strength_list:
                         for seed in seeds:
-                            folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
-                                     f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/dns_{denoising_strength}/seed_{seed}'
-                            print(folder)
-                            create_folder(folder)
                             generator = torch.Generator("cuda").manual_seed(seed)
                             if type == 'txt2img':
+                                folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                         f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/seed_{seed}'
+                                create_folder(folder)
                                 try:
                                     # Call txt2img
                                     output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator,
@@ -224,28 +226,29 @@ if __name__ == "__main__":
                                           + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                     print(e)
                             else:
+                                folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                         f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/den_{denoising_strength}/seed_{seed}'
+                                create_folder(folder)
                                 for idx, image in enumerate(images):
                                     try:
                                         if type == 'inpaint':
                                             # Call inpaint
                                             mask = masks[idx]
                                             output = model(prompt=prompt, image=image, mask_image=mask, guidance_scale=cfg_scale,
-                                                  generator=generator).images[0]
+                                                  generator=generator, strength=denoising_strength).images[0]
                                             output.save(folder + '/' + image)
                                             output_counter += 1
                                             terminal_progress_bar(output_counter, num_images_to_generate)
                                         elif type == 'img2img':
                                             # Call img2img
-                                            output = \
-                                                model(image, prompt, negative_prompt, cfg_scale,
-                                                      denoising_strength).images[0]
+                                            output = model(prompt=prompt, image=image, guidance_scale=cfg_scale,
+                                                      generator=generator, strength=denoising_strength).images[0]
                                             output.save(folder + '/' + image)
                                             output_counter += 1
                                             terminal_progress_bar(output_counter, num_images_to_generate)
                                     except Exception as e:
                                         print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                            negative_prompt)
-                                              + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                            negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                         print(e)
 
     #
