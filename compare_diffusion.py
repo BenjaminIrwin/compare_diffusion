@@ -1,9 +1,9 @@
 import argparse
 import os
 
-from PIL import Image
-from diffusers import DiffusionPipeline
 import torch
+from PIL import Image
+from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline
 
 
 def terminal_progress_bar(current, total, bar_length=20, task='Image Generation'):
@@ -193,7 +193,10 @@ if __name__ == "__main__":
 
     for model_path in model_paths:
         output_folder_name = 'output2'
-        model = DiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
+        if type == 'txt2img':
+            model = StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
+        else:
+            model = StableDiffusionImg2ImgPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
         model = model.to("cuda")
         print('loaded_model: ' + model_path)
         for prompt in prompts:
