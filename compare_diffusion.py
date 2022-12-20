@@ -161,6 +161,9 @@ if __name__ == "__main__":
     else:
         images, masks = None, None
 
+    print('Found {} images'.format(len(images)))
+    print('Found {} masks'.format(len(masks)))
+
     model_paths = args.models
     cfg_scale_list = args.cfg_scale_list
     if type == 'txt2img':
