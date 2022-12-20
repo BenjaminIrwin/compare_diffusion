@@ -195,7 +195,7 @@ if __name__ == "__main__":
             print(f'Number of input masks: {len(masks)}')
 
     for model_path in model_paths:
-        output_folder_name = 'output3'
+        output_folder_name = 'output4'
         if type == 'txt2img':
             model = StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
         else:
