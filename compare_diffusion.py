@@ -88,6 +88,7 @@ def get_image_paths(dir):
 def validate(fp: str) -> bool:
     try:
         Image.open(fp)
+        return True
     except:
         print(f'WARNING: Image cannot be opened: {fp}')
         return False
@@ -159,6 +160,7 @@ if __name__ == "__main__":
     print(get_image_paths('input/images'))
 
     if type == 'img2img':
+        # Filter out images that are not valid
         images, masks = [image_path for image_path in get_image_paths('input/images') if validate(image_path)], None
     elif type == 'inpaint':
         images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
