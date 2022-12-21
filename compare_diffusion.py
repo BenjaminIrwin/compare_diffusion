@@ -5,6 +5,8 @@ import torch
 from PIL import Image
 from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline
 
+from pdf_gen import generate_pdf
+
 
 def terminal_progress_bar(current, total, bar_length=20, task='Image Generation'):
     percent = float(current) * 100 / total
@@ -174,27 +176,90 @@ parser.add_argument('--hf_token', type=str, required=True)
 parser.add_argument('--type', type=str, required=True, choices=['img2img', 'txt2img', 'inpaint'])
 parser.add_argument('--rows', type=str, required=True)
 parser.add_argument('--cols', type=str, required=True)
-parser.add_argument('--subsections', type=str, default=None)
-parser.add_argument('--sections', type=str, default=None)
 parser.add_argument('--models', type=str, nargs='+', required=True)
 parser.add_argument('--cfg_scale_list', type=float, nargs='+', required=True)
 parser.add_argument('--denoising_strength_list', type=float, nargs='+', required=True)
 parser.add_argument('--prompts', type=str, nargs='+', required=True)
 parser.add_argument('--negative_prompts', type=str, nargs='*', default=[''])
 parser.add_argument('--seeds', type=int, nargs='*', default=[1])
+parser.add_argument('--height', type=int, default=512)
+parser.add_argument('--width', type=int, default=512)
 
 # /content/compare_diffusion/output4/dreamlike-diffusion-1.0/pmt_a cat eating food/neg_pmt_tongue/cfg_7.5/den_0.75/seed_2/i000000025.jpg
 # /content/compare_diffusion/output4/dreamlike-diffusion-1.0/pmt_a cat eating food/neg_pmt_tongue/cfg_7.5/den_0.75/seed_2/i000000026.jpg
 
+def generate_images():
+    output_counter = 0
+
+    for model_path in model_paths:
+        output_folder_name = 'output4'
+        if type == 'txt2img':
+            model = StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token,
+                                                            torch_dtype=torch.float16)
+        else:
+            model = StableDiffusionImg2ImgPipeline.from_pretrained(model_path, use_auth_token=hf_token,
+                                                                   torch_dtype=torch.float16)
+        model = model.to("cuda")
+        print('loaded_model: ' + model_path)
+        for prompt in prompts:
+            for negative_prompt in negative_prompts:
+                for cfg_scale in cfg_scale_list:
+                    for denoising_strength in denoising_strength_list:
+                        for seed in seeds:
+                            generator = torch.Generator("cuda").manual_seed(seed)
+                            if type == 'txt2img':
+                                folder = f'{output_folder_name}/model_{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                         f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/seed_{seed}'
+                                create_folder(folder)
+                                try:
+                                    # Call txt2img
+                                    output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator,
+                                                   negative_prompt=negative_prompt, height=height, width=width).images[
+                                        0]
+                                    # Generate image name as increment of previous image
+                                    output.save(folder + '/output_' + str(output_counter) + '.png')
+                                    output_counter += 1
+                                    terminal_progress_bar(output_counter, num_images_to_generate)
+                                except Exception as e:
+                                    print('Error generating image with params: ' + str(prompt) + ' ' + str(
+                                        negative_prompt)
+                                          + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                    print(e)
+                            else:
+                                folder = f'model_{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                         f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/den_{denoising_strength}/seed_{seed}'
+                                create_folder(folder)
+                                for idx, image in enumerate(images):
+                                    try:
+                                        pil_image = Image.open(image)
+                                        image_name = image.split('/')[-1]
+                                        if type == 'inpaint':
+                                            # Call inpaint
+                                            pil_mask = Image.open(masks[idx])
+                                            output = model(prompt=prompt, image=pil_image, mask_image=pil_mask,
+                                                           guidance_scale=cfg_scale,
+                                                           generator=generator, strength=denoising_strength, height=height,
+                                                           width=width).images[0]
+                                            output.save(folder + '/' + str(image_name))
+                                            output_counter += 1
+                                            terminal_progress_bar(output_counter, num_images_to_generate)
+                                        elif type == 'img2img':
+                                            # Call img2img
+                                            output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
+                                                           generator=generator, strength=denoising_strength, height=height,
+                                                           width=width).images[0]
+                                            output.save(folder + '/' + str(image_name))
+                                            output_counter += 1
+                                            terminal_progress_bar(output_counter, num_images_to_generate)
+                                    except Exception as e:
+                                        print('Error generating image with params: ' + str(prompt) + ' ' + str(
+                                            negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                        print(e)
+
+
 if __name__ == "__main__":
     args = parser.parse_args()
-    print(args)
-
     type = args.type
-
-    print('Loading images')
-    print(get_image_paths('input/images'))
-
     if type == 'img2img':
         # Filter out images that are not valid
         images, masks = [image_path for image_path in get_image_paths('input/images') if validate(image_path)], None
@@ -203,9 +268,8 @@ if __name__ == "__main__":
     else:
         images, masks = None, None
 
-    print('Found {} images'.format(len(images)))
-    # print('Found {} masks'.format(len(masks)))
-
+    height = args.height
+    width = args.width
     model_paths = args.models
     cfg_scale_list = args.cfg_scale_list
     if type == 'txt2img':
@@ -217,9 +281,6 @@ if __name__ == "__main__":
     seeds = args.seeds
     hf_token = args.hf_token
 
-    print(locals())
-
-    output_counter = 0
     num_images_to_generate = len(model_paths) * len(cfg_scale_list) * len(denoising_strength_list) * \
                              len(prompts) * len(negative_prompts) * len(seeds)
     if images:
@@ -239,79 +300,22 @@ if __name__ == "__main__":
         if masks is not None:
             print(f'Number of input masks: {len(masks)}')
 
-    for model_path in model_paths:
-        output_folder_name = 'output4'
-        if type == 'txt2img':
-            model = StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
-        else:
-            model = StableDiffusionImg2ImgPipeline.from_pretrained(model_path, use_auth_token=hf_token, torch_dtype=torch.float16)
-        model = model.to("cuda")
-        print('loaded_model: ' + model_path)
-        for prompt in prompts:
-            for negative_prompt in negative_prompts:
-                for cfg_scale in cfg_scale_list:
-                    for denoising_strength in denoising_strength_list:
-                        for seed in seeds:
-                            generator = torch.Generator("cuda").manual_seed(seed)
-                            if type == 'txt2img':
-                                folder = f'{output_folder_name}/model_{model_path.split("/")[-1]}/pmt_{prompt}/' \
-                                         f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/seed_{seed}'
-                                create_folder(folder)
-                                try:
-                                    # Call txt2img
-                                    output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator,
-                                                   negative_prompt=negative_prompt).images[0]
-                                    # Generate image name as increment of previous image
-                                    output.save(folder + '/output_' + str(output_counter) + '.png')
-                                    output_counter += 1
-                                    terminal_progress_bar(output_counter, num_images_to_generate)
-                                except Exception as e:
-                                    print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                        negative_prompt)
-                                          + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                                    print(e)
-                            else:
-                                folder = f'model_{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
-                                         f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/den_{denoising_strength}/seed_{seed}'
-                                create_folder(folder)
-                                for idx, image in enumerate(images):
-                                    # try:
-                                    pil_image = Image.open(image)
-                                    image_name = image.split('/')[-1]
-                                    if type == 'inpaint':
-                                        # Call inpaint
-                                        pil_mask = Image.open(masks[idx])
-                                        output = model(prompt=prompt, image=pil_image, mask_image=pil_mask, guidance_scale=cfg_scale,
-                                              generator=generator, strength=denoising_strength).images[0]
-                                        output.save(folder + '/' + image_name)
-                                        output_counter += 1
-                                        terminal_progress_bar(output_counter, num_images_to_generate)
-                                    elif type == 'img2img':
-                                        # Call img2img
-                                        output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
-                                                  generator=generator, strength=denoising_strength).images[0]
-                                        output.save(folder + '/' + image_name)
-                                        output_counter += 1
-                                        terminal_progress_bar(output_counter, num_images_to_generate)
-                                    # except Exception as e:
-                                    #     print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                    #         negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                                    #     print(e)
+    generate_images()
+    hidden_params = {}
+    hidden_params['type'] = type
+    hidden_params['height'] = height
+    hidden_params['width'] = width
+    if len(model_paths) == 1:
+        hidden_params['model'] = model_paths[0]
+    if len(cfg_scale_list) == 1:
+        hidden_params['cfg_scale'] = cfg_scale_list[0]
+    if len(denoising_strength_list) == 1:
+        hidden_params['denoising_strength'] = denoising_strength_list[0]
+    if len(prompts) == 1:
+        hidden_params['prompt'] = prompts[0]
+    if len(negative_prompts) == 1:
+        hidden_params['negative_prompt'] = negative_prompts[0]
+    if len(seeds) == 1:
+        hidden_params['seed'] = seeds[0]
 
-    #
-    # print('Generated ' + str(output_counter) + ' images.')
-    #
-    image_paths = get_all_images_in_subtree('results')
-    files = load_files(image_paths)
-
-    # Make report first page
-
-    # Make section title
-
-    # Make subsection title
-
-    # Make col header
-
-    # Generate rows
-
-    # Concat rows with section title, subsection title, and col header
+    generate_pdf(args.rows, args.cols, hidden_params, width=width, height=height)
