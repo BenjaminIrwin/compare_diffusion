@@ -202,7 +202,7 @@ def generate_images(output_folder_name):
             model = StableDiffusionInpaintPipeline.from_pretrained(model_path, use_auth_token=hf_token,
                                                                       torch_dtype=torch.float16)
         model = model.to("cuda")
-        print('loaded_model: ' + model_path)
+        print('loaded_model: ' + model_path.split("/")[-1])
         for prompt in prompts:
             for negative_prompt in negative_prompts:
                 for cfg_scale in cfg_scale_list:
@@ -228,7 +228,7 @@ def generate_images(output_folder_name):
                                           + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                     print(e)
                             else:
-                                folder = f'model_{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
+                                folder = f'{output_folder_name}/{model_path.split("/")[-1]}/pmt_{prompt}/' \
                                          f'neg_pmt_{negative_prompt}/cfg_{cfg_scale}/den_{denoising_strength}/seed_{seed}'
                                 create_folder(folder)
                                 for idx, image in enumerate(images):
