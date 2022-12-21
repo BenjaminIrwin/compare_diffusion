@@ -188,11 +188,10 @@ parser.add_argument('--width', type=int, default=512)
 # /content/compare_diffusion/output4/dreamlike-diffusion-1.0/pmt_a cat eating food/neg_pmt_tongue/cfg_7.5/den_0.75/seed_2/i000000025.jpg
 # /content/compare_diffusion/output4/dreamlike-diffusion-1.0/pmt_a cat eating food/neg_pmt_tongue/cfg_7.5/den_0.75/seed_2/i000000026.jpg
 
-def generate_images():
+def generate_images(output_folder_name):
     output_counter = 0
 
     for model_path in model_paths:
-        output_folder_name = 'output4'
         if type == 'txt2img':
             model = StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token,
                                                             torch_dtype=torch.float16)
@@ -320,5 +319,6 @@ if __name__ == "__main__":
     if len(seeds) == 1:
         hidden_params['seed'] = seeds[0]
 
-    generate_images()
-    generate_pdf(args.rows, args.cols, width, height, hidden_params)
+    output_folder_name = 'output5'
+    generate_images(output_folder_name)
+    generate_pdf(args.rows, args.cols, width, height, hidden_params, generated_images_path=output_folder_name)
