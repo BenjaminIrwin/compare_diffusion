@@ -163,7 +163,7 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
     # Create a subsection header
     subsection_headers = []
     for hidden_param in hidden_params.keys():
-        hidden_param_string = hidden_param + ': ' + hidden_params[hidden_param]
+        hidden_param_string = hidden_param + ': ' + str(hidden_params[hidden_param])
         subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 6))
         subsection_headers.append(subsection_header)
     # Create axis titles
