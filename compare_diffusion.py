@@ -96,8 +96,8 @@ def validate(fp: str) -> bool:
         return False
 
 
-def extract_input_num(self, path):
-    return int(path.split('/')[-1].split('.')[0][1:])
+def extract_input_num(path):
+    return int(path.split('_')[1].split('.')[0])
 
 
 def clean(image_files, mask_files):
@@ -300,7 +300,6 @@ if __name__ == "__main__":
         if masks is not None:
             print(f'Number of input masks: {len(masks)}')
 
-    generate_images()
     hidden_params = {}
     hidden_params['type'] = type
     hidden_params['height'] = height
@@ -318,4 +317,5 @@ if __name__ == "__main__":
     if len(seeds) == 1:
         hidden_params['seed'] = seeds[0]
 
+    generate_images()
     generate_pdf(args.rows, args.cols, width, height, hidden_params)

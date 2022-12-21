@@ -176,8 +176,7 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
         row_paths = []
         for col_header in col_headers:
             row_paths.append(row[col_header])
-        print(row_header)
-        image_row = create_row_from_paths(row_paths, row_header, width, height)
+        image_row = create_row_from_paths(row_paths, row_header if not x_axis == 'img' else '', width, height)
         page_rows.append(image_row)
         if len(page_rows) % rows_per_page == 0:
             page = Image.fromarray(vertical_concat_images(page_rows))
