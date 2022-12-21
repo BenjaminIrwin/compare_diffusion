@@ -239,7 +239,7 @@ def generate_images():
                                     if type == 'inpaint':
                                         # Call inpaint
                                         pil_mask = Image.open(masks[idx])
-                                        output = model(prompt=prompt, image=pil_image, mask_image=pil_mask,
+                                        output = model(prompt=prompt, image=pil_image.convert('RGB'), mask_image=pil_mask.convert('RGB'),
                                                        guidance_scale=cfg_scale,
                                                        generator=generator, height=height,
                                                        width=width).images[0]
