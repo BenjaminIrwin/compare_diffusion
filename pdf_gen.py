@@ -198,7 +198,3 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
         final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
     else:
         final_pages[0].save('output.pdf', optimize=True)
-
-hidden_params = {'hidden_param_1': 'value_1', 'hidden_param_2': 'value_2'}
-
-generate_pdf('model', 'img', 512, 512, hidden_params, rows_per_page=10, generated_images_path='output10')
