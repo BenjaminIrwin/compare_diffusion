@@ -318,4 +318,4 @@ if __name__ == "__main__":
     if len(seeds) == 1:
         hidden_params['seed'] = seeds[0]
 
-    generate_pdf(args.rows, args.cols, hidden_params, width=width, height=height)
+    generate_pdf(args.rows, args.cols, width, height, hidden_params)

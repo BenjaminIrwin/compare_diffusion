@@ -148,7 +148,7 @@ def check_if_folder_exists(folder):
     return os.path.exists(folder)
 
 
-def generate_pdf(x_axis, y_axis, hidden_params, rows_per_page=10, width=512, height=512,
+def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
                  generated_images_path='output'):
     image_paths = get_all_images_in_subtree(generated_images_path)
     files = load_files(image_paths, y_axis, x_axis)
@@ -186,8 +186,13 @@ def generate_pdf(x_axis, y_axis, hidden_params, rows_per_page=10, width=512, hei
     if len(page_rows) > num_header_rows:
         page = Image.fromarray(vertical_concat_images(page_rows))
         page_list.append(page)
-    for page in page_list:
+
+    # Create pdf
+    final_pages = []
+    for idx, page in enumerate(page_list):
         # get page width and height
         page_width, page_height = page.size
         y_axis_title = create_x_axis_title(y_axis, int(width / 3), page_height)
-        Image.fromarray(horizontal_concat_images([y_axis_title, page])).show()
+        final_pages.append(Image.fromarray(horizontal_concat_images([y_axis_title, page])))
+
+    final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
