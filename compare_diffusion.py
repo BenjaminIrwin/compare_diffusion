@@ -241,7 +241,7 @@ def generate_images():
                                         pil_mask = Image.open(masks[idx])
                                         output = model(prompt=prompt, image=pil_image, mask_image=pil_mask,
                                                        guidance_scale=cfg_scale,
-                                                       generator=generator, strength=denoising_strength, height=height,
+                                                       generator=generator, height=height,
                                                        width=width).images[0]
                                         output.save(folder + '/' + str(image_name))
                                         output_counter += 1
