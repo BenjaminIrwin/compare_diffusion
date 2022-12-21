@@ -194,4 +194,7 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
         y_axis_title = create_x_axis_title(y_axis, int(width / 3), page_height)
         final_pages.append(Image.fromarray(horizontal_concat_images([y_axis_title, page])))
 
-    final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
+    if len(final_pages) > 1:
+        final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
+    else:
+        final_pages[0].save('output.pdf', optimize=True)
