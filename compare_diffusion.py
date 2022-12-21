@@ -3,7 +3,7 @@ import os
 
 import torch
 from PIL import Image
-from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline
+from diffusers import StableDiffusionImg2ImgPipeline, StableDiffusionPipeline, StableDiffusionInpaintPipeline
 
 from pdf_gen import generate_pdf
 
@@ -196,9 +196,12 @@ def generate_images():
         if type == 'txt2img':
             model = StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token,
                                                             torch_dtype=torch.float16)
-        else:
+        elif type == 'img2img':
             model = StableDiffusionImg2ImgPipeline.from_pretrained(model_path, use_auth_token=hf_token,
                                                                    torch_dtype=torch.float16)
+        elif type == 'inpaint':
+            model = StableDiffusionInpaintPipeline.from_pretrained(model_path, use_auth_token=hf_token,
+                                                                      torch_dtype=torch.float16)
         model = model.to("cuda")
         print('loaded_model: ' + model_path)
         for prompt in prompts:
