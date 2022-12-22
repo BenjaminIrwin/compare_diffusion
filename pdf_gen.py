@@ -153,6 +153,7 @@ def check_if_folder_exists(folder):
 
 def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
                  generated_images_path='output'):
+    print(locals())
     image_paths = get_all_images_in_subtree(generated_images_path)
     files = load_files(image_paths, y_axis, x_axis)
     row_headers = sorted(list(set(extract_keys_from_nested_dict(files, 0))))
@@ -192,6 +193,7 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
     # Create pdf
     final_pages = []
     for idx, page in enumerate(page_list):
+        print('CREATING PAGE: ', idx)
         # get page width and height
         page_width, page_height = page.size
         y_axis_title = create_x_axis_title(y_axis, int(width / 3), page_height)

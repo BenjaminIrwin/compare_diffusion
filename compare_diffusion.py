@@ -320,5 +320,5 @@ if __name__ == "__main__":
         hidden_params['seed'] = seeds[0]
 
     output_folder_name = 'output5'
-    generate_images(output_folder_name)
+    # generate_images(output_folder_name)
     generate_pdf(args.rows, args.cols, width, height, hidden_params, generated_images_path=output_folder_name)
