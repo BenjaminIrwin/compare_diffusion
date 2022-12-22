@@ -83,7 +83,7 @@ def vertical_concat_images(images):
 
 
 def create_subsection_header_row(subsection, width, height):
-    return create_text_image(subsection, width, height, x_justify=0)
+    return create_text_image(subsection, width, height, x_justify=0, fontsize=20)
 
 
 def create_y_axis_title(title, width, height):
@@ -169,12 +169,10 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
     page_list = []
     # Create a subsection header
     subsection_headers = []
-    hidden_param_string = ''
     for hidden_param in hidden_params.keys():
-        hidden_param_string += '¦' + hidden_param + ': ' + str(hidden_params[hidden_param])
-
-    subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 3))
-    subsection_headers.append(subsection_header)
+        hidden_param_string = hidden_param + ': ' + str(hidden_params[hidden_param])
+        subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 8))
+        subsection_headers.append(subsection_header)
     # Create axis titles
     x_axis_title = create_y_axis_title(x_axis, page_width, int(height / 3))
     # Create page list
