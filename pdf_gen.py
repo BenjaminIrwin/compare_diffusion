@@ -117,7 +117,7 @@ def create_text_image(text='final font size', width=512, height=512, x_justify=0
 
     draw = ImageDraw.Draw(img)
 
-    font = ImageFont.truetype("Monaco.ttf", fontsize)
+    font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
 
     print(text, fontsize)
 
