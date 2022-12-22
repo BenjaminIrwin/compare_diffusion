@@ -102,8 +102,11 @@ def create_header_row(row_headers, image_width=512, height=512):
 
 
 def create_row_from_paths(paths, row_header, width, height):
+    print('CREATING HORIZONTAL CONCAT WITH {} IMAGES'.format(len(paths)))
     images = get_PIL_images_from_paths(paths)
-    images.insert(0, create_text_image(row_header, int(width / 3), height))
+    print('CREATING TEXT IMAGE WITH WIDTH {}', int(width / 3))
+    text_image = create_text_image(row_header, int(width / 3), height)
+    images.insert(0, text_image)
     pil_images = horizontal_concat_PIL_images(images)
     print('CREATED HORIZONTAL CONCAT WITH WIDTH: ', pil_images.width)
     return pil_images
@@ -122,8 +125,6 @@ def create_text_image(text='final font size', width=512, height=512, x_justify=0
         return draw
 
     font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
-
-    print(text, fontsize)
 
     # Position text
     x = width * x_justify - (font.getsize(text)[0] * x_justify)
