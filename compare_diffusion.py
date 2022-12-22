@@ -321,4 +321,4 @@ if __name__ == "__main__":
 
     output_folder_name = 'output5'
     # generate_images(output_folder_name)
-    generate_pdf(args.rows, args.cols, width, height, hidden_params, generated_images_path=output_folder_name)
+    generate_pdf(args.cols, args.rows, width, height, hidden_params, generated_images_path=output_folder_name)
