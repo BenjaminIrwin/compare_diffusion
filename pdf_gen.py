@@ -70,7 +70,8 @@ def horizontal_concat_PIL_images(images):
 
 
 def horizontal_concat_images(images):
-    return np.concatenate(images, axis=1)
+    # Concatenate the images horizontally if they are not zero-dimensional
+    return np.concatenate([image for image in images if image.ndim != 0], axis=1)
 
 
 def vertical_concat_PIL_images(images):
@@ -117,7 +118,7 @@ def create_text_image(text='final font size', width=512, height=512, x_justify=0
 
     draw = ImageDraw.Draw(img)
 
-    if text == '' or text is None:
+    if text == '' or text == None:
         return draw
 
     font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
@@ -153,7 +154,6 @@ def check_if_folder_exists(folder):
 
 def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
                  generated_images_path='output'):
-    print(locals())
     image_paths = get_all_images_in_subtree(generated_images_path)
     files = load_files(image_paths, y_axis, x_axis)
     row_headers = sorted(list(set(extract_keys_from_nested_dict(files, 0))))
@@ -193,7 +193,6 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
     # Create pdf
     final_pages = []
     for idx, page in enumerate(page_list):
-        print('CREATING PAGE: ', idx)
         # get page width and height
         page_width, page_height = page.size
         y_axis_title = create_x_axis_title(y_axis, int(width / 3), page_height)
@@ -203,3 +202,5 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
         final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
     else:
         final_pages[0].save('output.pdf', optimize=True)
+
+
