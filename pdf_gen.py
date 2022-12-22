@@ -71,7 +71,7 @@ def horizontal_concat_PIL_images(images):
 
 def horizontal_concat_images(images):
     # Concatenate the images horizontally if they are not zero-dimensional
-    return np.concatenate([image for image in images if image.ndim != 0], axis=1)
+    return np.concatenate(images, axis=1)
 
 
 def vertical_concat_PIL_images(images):
