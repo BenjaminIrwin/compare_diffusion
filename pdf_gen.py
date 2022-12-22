@@ -117,12 +117,14 @@ def create_blank_image(width, height):
 
 
 def create_text_image(text='final font size', width=512, height=512, x_justify=0.5, y_justify=0.5, fontsize=43):
+    print('CREATING TEXT IMAGE WITH TEXT: ', text)
+
     img = Image.new('RGB', (width, height), color=(255, 255, 255))
 
     draw = ImageDraw.Draw(img)
 
     if text == '' or text == None:
-        return draw
+        return img
 
     font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
 
