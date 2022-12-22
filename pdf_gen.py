@@ -154,6 +154,8 @@ def check_if_folder_exists(folder):
     import os
     return os.path.exists(folder)
 
+def create_acronym(string):
+    return ''.join([word[0] for word in string.split(("-|_| ")[-1])])
 
 def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
                  generated_images_path='output'):
@@ -163,6 +165,7 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
     col_headers = sorted(list(set(extract_keys_from_nested_dict(files, 1))))
     # Create hidden params row
     # Create a column header row
+
     column_header_row = create_header_row(col_headers, image_width=width, height=int(height / 5))
     page_width = (width * (len(col_headers))) + int(width / 3)
     print('PAGE WIDTH:', page_width)
@@ -205,5 +208,3 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
         final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
     else:
         final_pages[0].save('output.pdf', optimize=True)
-
-
