@@ -112,7 +112,7 @@ if __name__ == "__main__":
             images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
 
     generate_images(args['hf_token'], args['output_path'], args['height'], args['width'], images, masks,
-                    args['model_paths'], args['prompts'], args['cfg_scale_list'], args['denoising_strength_list'],
+                    args['models'], args['prompts'], args['cfg_scale_list'], args['denoising_strength_list'],
                     args['negative_prompts'], args['seeds'])
     hidden_params = get_hidden_params(args, dim_choices)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
