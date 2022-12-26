@@ -78,12 +78,12 @@ parser.add_argument('--output_path', type=str, required=True)
 parser.add_argument('--type', type=str, required=True, choices=['img2img', 'txt2img', 'inpaint'])
 parser.add_argument('--rows', type=str, required=True, choices=dim_choices)
 parser.add_argument('--cols', type=str, required=True, choices=dim_choices)
-parser.add_argument('--models', type=str, nargs='+', required=True)
-parser.add_argument('--cfg_scale_list', type=float, nargs='+', required=True)
-parser.add_argument('--denoising_strength_list', type=float, nargs='+', required=True)
-parser.add_argument('--prompts', type=str, nargs='+', required=True)
-parser.add_argument('--negative_prompts', type=str, nargs='*', default=[''])
-parser.add_argument('--seeds', type=int, nargs='*', default=[1])
+parser.add_argument('--model', type=str, nargs='+', required=True)
+parser.add_argument('--cfg_scale', type=float, nargs='+', required=True)
+parser.add_argument('--denoising_strength', type=float, nargs='+', required=True)
+parser.add_argument('--prompt', type=str, nargs='+', required=True)
+parser.add_argument('--negative_prompt', type=str, nargs='*', default=[''])
+parser.add_argument('--seed', type=int, nargs='*', default=[1])
 parser.add_argument('--height', type=int, default=512)
 parser.add_argument('--width', type=int, default=512)
 
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         elif args['type'] == 'inpaint':
             images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
 
-    generate_images(args, images, masks)
+    # generate_images(args, images, masks)
     hidden_params = get_hidden_params(args, dim_choices)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=args['output_path'])
