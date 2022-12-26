@@ -86,7 +86,7 @@ def vertical_concat_images(images):
 
 
 def create_subsection_header_row(subsection, width, height):
-    return create_text_image(subsection, width, height, x_justify=0, fontsize=20)
+    return create_text_image(subsection, width, height, x_justify=0, fontsize=20, wrap=True)
 
 
 def create_y_axis_title(title, width, height):
@@ -118,18 +118,29 @@ def create_row_from_paths(paths, row_header, width, height):
 def create_blank_image(width, height):
     return Image.new('RGB', (width, height), color=(255, 255, 255))
 
+def get_wrapped_text(text: str, font, line_length: int):
+    lines = ['']
+    for word in text.split():
+        line = f'{lines[-1]} {word}'.strip()
+        if font.getlength(line) <= line_length:
+            lines[-1] = line
+        else:
+            lines.append(word)
+    return '\n'.join(lines)
 
-def create_text_image(text='final font size', width=512, height=512, x_justify=0.5, y_justify=0.5, fontsize=43):
+
+def create_text_image(text='final font size', width=512, height=512, x_justify=0.5, y_justify=0.5, fontsize=43, wrap=False):
     print('CREATING TEXT IMAGE WITH TEXT: ', text)
 
     img = Image.new('RGB', (width, height), color=(255, 255, 255))
 
     draw = ImageDraw.Draw(img)
+    font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
 
     if text == '' or text == None:
         return img
-
-    font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
+    elif wrap:
+        text = get_wrapped_text(text, font, width)
 
     # Position text
     x = width * x_justify - (font.getsize(text)[0] * x_justify)
