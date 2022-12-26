@@ -95,7 +95,7 @@ def get_hidden_params(arguments, dimensions):
             if len(arguments[dim]) > 1:
                 warnings.warn(f"More than one '{dim}' path provided, but rows nor cols are set to '{dim}'. Defaulting "
                               f"to '{dim}' at index 0.")
-            params[dim] = arguments['dim'][0]
+            params[dim] = arguments[dim][0]
 
     return params
 
