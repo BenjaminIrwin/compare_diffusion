@@ -15,12 +15,12 @@ def generate_images(args, images, masks):
     output_path = args['output_path']
     height = args['height']
     width = args['width']
-    model_paths = args['models']
-    prompts = args['prompts']
-    cfg_scale_list = args['cfg_scale_list']
-    denoising_strength_list = args['denoising_strength_list']
-    negative_prompts = args['negative_prompts']
-    seeds = args['seeds']
+    model_paths = args['model']
+    prompts = args['prompt']
+    cfg_scale_list = args['cfg_scale']
+    denoising_strength_list = args['denoising_strength']
+    negative_prompts = args['negative_prompt']
+    seeds = args['seed']
     type = args['type']
 
     output_counter = 0
