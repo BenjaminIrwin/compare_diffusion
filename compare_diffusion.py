@@ -111,9 +111,7 @@ if __name__ == "__main__":
         elif args['type'] == 'inpaint':
             images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
 
-    generate_images(args['hf_token'], args['output_path'], args['height'], args['width'], images, masks,
-                    args['models'], args['prompts'], args['cfg_scale_list'], args['denoising_strength_list'],
-                    args['negative_prompts'], args['seeds'])
+    generate_images(args, images, masks)
     hidden_params = get_hidden_params(args, dim_choices)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=args['output_path'])

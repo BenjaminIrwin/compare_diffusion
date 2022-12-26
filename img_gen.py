@@ -10,12 +10,23 @@ def create_folder(path):
         os.makedirs(path)
 
 
-def generate_images(hf_token, output_path, height, width, images, masks, model_paths, prompts, cfg_scale_list,
-                    denoising_strength_list, negative_prompts, seeds):
+def generate_images(args, images, masks):
+    hf_token = args['hf_token']
+    output_path = args['output_path']
+    height = args['height']
+    width = args['width']
+    model_paths = args['models']
+    prompts = args['prompts']
+    cfg_scale_list = args['cfg_scale_list']
+    denoising_strength_list = args['denoising_strength_list']
+    negative_prompts = args['negative_prompts']
+    seeds = args['seeds']
+    type = args['type']
+
     output_counter = 0
 
     for model_path in model_paths:
-        model = get_model(hf_token, model_path).to("cuda")
+        model = get_model(hf_token, model_path, type).to("cuda")
         print('Loaded model: ' + model_path.split("/")[-1])
         for prompt in prompts:
             for negative_prompt in negative_prompts:
@@ -66,7 +77,7 @@ def generate_images(hf_token, output_path, height, width, images, masks, model_p
                                         print(e)
 
 
-def get_model(hf_token, model_path):
+def get_model(hf_token, model_path, type):
     if type == 'txt2img':
         return StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token,
                                                        torch_dtype=torch.float16)
