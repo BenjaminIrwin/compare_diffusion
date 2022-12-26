@@ -99,7 +99,9 @@ def create_rows_title(title, width, height):
 
 
 def create_cols_axis(row_headers, image_width=512, height=512):
-    images = [create_text_image(row_header, image_width, height, wrap=True) for row_header in row_headers]
+    max_text_width = max(row_headers, key=len)
+    fontsize = get_fontsize(image_width, max_text_width)
+    images = [create_text_image(row_header, image_width, height, fontsize=fontsize) for row_header in row_headers]
     images.insert(0, create_blank_image(int(image_width / 3), height))
     return horizontal_concat_PIL_images(images)
 
@@ -128,6 +130,17 @@ def get_wrapped_text(text: str, font, line_length: int):
             lines.append(word)
     return '\n'.join(lines)
 
+
+def get_fontsize(width, text_length):
+    fontsize = 1  # starting font size
+    font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
+    # portion of image width you want text width to be
+    img_fraction = 0.95
+    while font.getlength(text_length) < img_fraction * width:
+        # iterate until the text size is just larger than the criteria
+        fontsize += 1
+        font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
+    return fontsize - 1
 
 def create_text_image(text='final font size', width=512, height=512, x_justify=0.5, y_justify=0.5, fontsize=43, wrap=False):
     print('CREATING TEXT IMAGE WITH TEXT: ', text)
