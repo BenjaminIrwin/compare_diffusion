@@ -4,13 +4,12 @@ import numpy as np
 from PIL import Image, ImageFont, ImageDraw
 
 
-def get_parameter_value(path, parameter):
+def get_parameter_from_path(path, param_prefix):
     # Split the path by '/' to get a list of individual components
     path_components = path.split('/')
 
     # Find the component that starts with the parameter name followed by '_'
     for component in path_components:
-        param_prefix = parameter + '_'
         if component.startswith(param_prefix):
             # Split the component by '_' and return the second element (the value)
             # Strip the curly braces from the value
@@ -20,7 +19,11 @@ def get_parameter_value(path, parameter):
     return None
 
 
-def load_files(paths, row_param, column_param):
+def load_files(paths, row_param, col_param):
+
+    row_param_prefix = row_param[0] + '_'
+    col_param_prefix = col_param[0] + '_'
+
     # Create an empty dictionary to store the sections and subsections
     rows = {}
 
@@ -28,8 +31,8 @@ def load_files(paths, row_param, column_param):
     for path in paths:
 
         # Extract the values for row, and column parameters
-        row = get_parameter_value(path, row_param)
-        column = get_parameter_value(path, column_param)
+        row = get_parameter_from_path(path, row_param_prefix)
+        column = get_parameter_from_path(path, col_param_prefix)
 
         # If the section doesn't already exist in the dictionary, add it
         if row not in rows:
@@ -154,17 +157,13 @@ def check_if_folder_exists(folder):
     import os
     return os.path.exists(folder)
 
-def create_acronym(string):
-    return ''.join([word[0] for word in string.split(("-|_| ")[-1])])
 
-def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
+def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_page=10,
                  generated_images_path='output'):
     image_paths = get_all_images_in_subtree(generated_images_path)
-    files = load_files(image_paths, y_axis, x_axis)
+    files = load_files(image_paths, row_param, col_param)
     row_headers = sorted(list(set(extract_keys_from_nested_dict(files, 0))))
     col_headers = sorted(list(set(extract_keys_from_nested_dict(files, 1))))
-    # Create hidden params row
-    # Create a column header row
 
     column_header_row = create_header_row(col_headers, image_width=width, height=int(height / 5))
     page_width = (width * (len(col_headers))) + int(width / 3)
@@ -177,7 +176,7 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
         subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 8))
         subsection_headers.append(subsection_header)
     # Create axis titles
-    x_axis_title = create_y_axis_title(x_axis, page_width, int(height / 3))
+    x_axis_title = create_y_axis_title(col_param, page_width, int(height / 3))
     # Create page list
     page_rows = subsection_headers + [x_axis_title, column_header_row]
     num_header_rows = len(page_rows)
@@ -201,7 +200,7 @@ def generate_pdf(x_axis, y_axis, width, height, hidden_params, rows_per_page=10,
     for idx, page in enumerate(page_list):
         # get page width and height
         page_width, page_height = page.size
-        y_axis_title = create_x_axis_title(y_axis, int(width / 3), page_height)
+        y_axis_title = create_x_axis_title(row_param, int(width / 3), page_height)
         final_pages.append(Image.fromarray(horizontal_concat_images([y_axis_title, page])))
 
     if len(final_pages) > 1:
