@@ -89,17 +89,17 @@ def create_subsection_header_row(subsection, width, height):
     return create_text_image(subsection, width, height, x_justify=0, fontsize=20, wrap=True)
 
 
-def create_y_axis_title(title, width, height):
+def create_cols_title(title, width, height):
     return create_text_image(title, width, height)
 
 
-def create_x_axis_title(title, width, height):
+def create_rows_title(title, width, height):
     image = create_text_image(title, height, width, x_justify=0.3).rotate(90, expand=True)
     return image
 
 
-def create_header_row(row_headers, image_width=512, height=512):
-    images = [create_text_image(row_header, image_width, height) for row_header in row_headers]
+def create_cols_axis(row_headers, image_width=512, height=512):
+    images = [create_text_image(row_header, image_width, height, wrap=True) for row_header in row_headers]
     images.insert(0, create_blank_image(int(image_width / 3), height))
     return horizontal_concat_PIL_images(images)
 
@@ -176,7 +176,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     row_headers = sorted(list(set(extract_keys_from_nested_dict(files, 0))))
     col_headers = sorted(list(set(extract_keys_from_nested_dict(files, 1))))
 
-    column_header_row = create_header_row(col_headers, image_width=width, height=int(height / 5))
+    column_header_row = create_cols_axis(col_headers, image_width=width, height=int(height / 5))
     page_width = (width * (len(col_headers))) + int(width / 3)
     print('PAGE WIDTH:', page_width)
     page_list = []
@@ -188,9 +188,9 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 4))
     subsection_headers = [subsection_header]
     # Create axis titles
-    x_axis_title = create_y_axis_title(col_param, page_width, int(height / 3))
+    cols_title = create_cols_title(col_param, page_width, int(height / 3))
     # Create page list
-    page_rows = subsection_headers + [x_axis_title, column_header_row]
+    page_rows = subsection_headers + [cols_title, column_header_row]
     num_header_rows = len(page_rows)
     for row_header in row_headers:
         row = files[row_header]
@@ -202,7 +202,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         if len(page_rows) % rows_per_page == 0:
             page = Image.fromarray(vertical_concat_images(page_rows))
             page_list.append(page)
-            page_rows = subsection_headers + [x_axis_title, column_header_row]
+            page_rows = subsection_headers + [cols_title, column_header_row]
     if len(page_rows) > num_header_rows:
         page = Image.fromarray(vertical_concat_images(page_rows))
         page_list.append(page)
@@ -212,8 +212,8 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     for idx, page in enumerate(page_list):
         # get page width and height
         page_width, page_height = page.size
-        y_axis_title = create_x_axis_title(row_param, int(width / 3), page_height)
-        final_pages.append(Image.fromarray(horizontal_concat_images([y_axis_title, page])))
+        rows_title = create_rows_title(row_param, int(width / 3), page_height)
+        final_pages.append(Image.fromarray(horizontal_concat_images([rows_title, page])))
 
     if len(final_pages) > 1:
         final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
