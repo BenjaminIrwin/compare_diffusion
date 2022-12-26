@@ -71,7 +71,7 @@ def create_folder(path):
 
 
 output_folder_name = 'output5'
-dim_choices = ['model', 'cfg_scale', 'denoising_strength', 'prompt', 'negative_prompt', 'seed']
+dim_choices = ['model', 'image', 'cfg_scale', 'denoising_strength', 'prompt', 'negative_prompt', 'seed']
 
 parser = argparse.ArgumentParser(description='Compare Diffusion')
 parser.add_argument('--hf_token', type=str, required=True)
@@ -88,16 +88,16 @@ parser.add_argument('--height', type=int, default=512)
 parser.add_argument('--width', type=int, default=512)
 
 
-def get_hidden_params():
-    hidden_params = {'type': (args['type']), 'height': (args['height']), 'width': (args['width'])}
-    for dim in dim_choices:
-        if args['rows'] != dim and args['cols'] != dim:
-            if len(args['dim']) > 1:
+def get_hidden_params(arguments, dimensions):
+    params = {'type': (arguments['type']), 'height': (arguments['height']), 'width': (arguments['width'])}
+    for dim in dimensions:
+        if arguments['rows'] != dim and arguments['cols'] != dim:
+            if len(arguments['dim']) > 1:
                 warnings.warn(f"More than one '{dim}' path provided, but rows nor cols are set to '{dim}'. Defaulting "
                               f"to '{dim}' at index 0.")
-            hidden_params[dim] = args['dim'][0]
+            params[dim] = arguments['dim'][0]
 
-    return hidden_params
+    return params
 
 
 if __name__ == "__main__":
@@ -114,6 +114,6 @@ if __name__ == "__main__":
     generate_images(args['hf_token'], args['output_path'], args['height'], args['width'], images, masks,
                     args['model_paths'], args['prompts'], args['cfg_scale_list'], args['denoising_strength_list'],
                     args['negative_prompts'], args['seeds'])
-    hidden_params = get_hidden_params()
+    hidden_params = get_hidden_params(args, dim_choices)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=output_folder_name)
