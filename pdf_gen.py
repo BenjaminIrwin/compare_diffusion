@@ -170,11 +170,12 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     print('PAGE WIDTH:', page_width)
     page_list = []
     # Create a subsection header
-    subsection_headers = []
+    hidden_param_string = ''
     for hidden_param in hidden_params.keys():
-        hidden_param_string = hidden_param + ': ' + str(hidden_params[hidden_param])
-        subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 8))
-        subsection_headers.append(subsection_header)
+        hidden_param_string += hidden_param + ': ' + str(hidden_params[hidden_param]) + ', '
+    hidden_param_string = hidden_param_string[:-2]
+    subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 4))
+    subsection_headers = [subsection_header]
     # Create axis titles
     x_axis_title = create_y_axis_title(col_param, page_width, int(height / 3))
     # Create page list
