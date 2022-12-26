@@ -70,11 +70,11 @@ def create_folder(path):
         os.makedirs(path)
 
 
-output_folder_name = 'output5'
 dim_choices = ['model', 'image', 'cfg_scale', 'denoising_strength', 'prompt', 'negative_prompt', 'seed']
 
 parser = argparse.ArgumentParser(description='Compare Diffusion')
 parser.add_argument('--hf_token', type=str, required=True)
+parser.add_argument('--output_path', type=str, required=True)
 parser.add_argument('--type', type=str, required=True, choices=['img2img', 'txt2img', 'inpaint'])
 parser.add_argument('--rows', type=str, required=True, choices=dim_choices)
 parser.add_argument('--cols', type=str, required=True, choices=dim_choices)
@@ -116,4 +116,4 @@ if __name__ == "__main__":
                     args['negative_prompts'], args['seeds'])
     hidden_params = get_hidden_params(args, dim_choices)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
-                 generated_images_path=output_folder_name)
+                 generated_images_path=args['output_path'])
