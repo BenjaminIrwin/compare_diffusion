@@ -130,6 +130,9 @@ def get_wrapped_text(text: str, font, line_length: int):
 
 
 def get_fontsize(width, text_length):
+
+    print('GETTING FONT SIZE FOR TEXT LENGTH: ' + str(text_length) + ' AND WIDTH: ' + str(width))
+
     fontsize = 1  # starting font size
     font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
     # portion of image width you want text width to be
