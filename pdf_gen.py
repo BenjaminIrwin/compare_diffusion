@@ -20,7 +20,6 @@ def get_parameter_from_path(path, param_prefix):
 
 
 def load_files(paths, row_param, col_param):
-
     row_param_prefix = row_param[0] + '_'
     col_param_prefix = col_param[0] + '_'
 
@@ -98,19 +97,17 @@ def create_rows_title(title, width, height):
     return image
 
 
-def create_cols_axis(row_headers, image_width=512, height=512):
-    max_text_width = max(row_headers, key=len)
-    fontsize = get_fontsize(image_width, max_text_width)
-    images = [create_text_image(row_header, image_width, height, fontsize=fontsize) for row_header in row_headers]
-    images.insert(0, create_blank_image(int(image_width / 3), height))
+def create_cols_axis(col_headers, col_header_layout):
+    images = [create_text_image(col_header, col_header_layout[0], col_header_layout[1], fontsize=col_header_layout[2], wrap=col_header_layout[3]) for col_header in col_headers]
+    images.insert(0, create_blank_image(int(col_header_layout[0] / 3), col_header_layout[1]))
     return horizontal_concat_PIL_images(images)
 
 
-def create_row_from_paths(paths, row_header, width, height):
+def create_row_from_paths(paths, row_header, row_header_layout):
+    # image_width, height, fontsize, wrap
     print('CREATING HORIZONTAL CONCAT WITH {} IMAGES'.format(len(paths)))
     images = get_PIL_images_from_paths(paths)
-    print('CREATING TEXT IMAGE WITH WIDTH {}', int(width / 3))
-    text_image = create_text_image(row_header, int(width / 3), height)
+    text_image = create_text_image(row_header, row_header_layout[0], row_header_layout[1], fontsize=row_header_layout[2], wrap=row_header_layout[3])
     images.insert(0, text_image)
     pil_images = horizontal_concat_PIL_images(images)
     print('CREATED HORIZONTAL CONCAT WITH WIDTH: ', pil_images.width)
@@ -119,6 +116,7 @@ def create_row_from_paths(paths, row_header, width, height):
 
 def create_blank_image(width, height):
     return Image.new('RGB', (width, height), color=(255, 255, 255))
+
 
 def get_wrapped_text(text: str, font, line_length: int):
     lines = ['']
@@ -142,7 +140,9 @@ def get_fontsize(width, text_length):
         font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
     return fontsize - 1
 
-def create_text_image(text='final font size', width=512, height=512, x_justify=0.5, y_justify=0.5, fontsize=43, wrap=False):
+
+def create_text_image(text='final font size', width=512, height=512, x_justify=0.5, y_justify=0.5, fontsize=43,
+                      wrap=False):
     print('CREATING TEXT IMAGE WITH TEXT: ', text)
 
     img = Image.new('RGB', (width, height), color=(255, 255, 255))
@@ -181,6 +181,36 @@ def check_if_folder_exists(folder):
     import os
     return os.path.exists(folder)
 
+def get_row_header_layout(row_headers, image_width=512, image_height=512):
+    # Get length of longest row header
+    max_row_header_length = max(row_headers, key=len)
+    if max_row_header_length < 10:
+        width = int(image_width/3)
+        fontsize = get_fontsize(width, max_row_header_length)
+        wrap = False
+    elif max_row_header_length < 20:
+        width = int(image_width/2)
+        fontsize = get_fontsize(width, max_row_header_length)
+        wrap = False
+    else:
+        width = int(image_width/2)
+        fontsize = 20
+        wrap = True
+
+    return width, image_height, fontsize, wrap
+
+def get_col_header_layout(col_headers, image_width=512, image_height=512):
+    max_col_header_length = max(col_headers, key=len)
+    if max_col_header_length < 20:
+        height = int(image_height / 5)
+        fontsize = get_fontsize(image_width, max_col_header_length)
+        wrap = False
+    else:
+        height = int(image_height/3)
+        fontsize = 30
+        wrap = True
+
+    return image_width, height, fontsize, wrap
 
 def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_page=10,
                  generated_images_path='output'):
@@ -189,7 +219,10 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     row_headers = sorted(list(set(extract_keys_from_nested_dict(files, 0))))
     col_headers = sorted(list(set(extract_keys_from_nested_dict(files, 1))))
 
-    column_header_row = create_cols_axis(col_headers, image_width=width, height=int(height / 5))
+    col_header_layout = get_col_header_layout(col_headers, width, height)
+    row_header_layout = get_row_header_layout(row_headers, width, height)
+
+    column_header_row = create_cols_axis(col_headers, col_header_layout)
     page_width = (width * (len(col_headers))) + int(width / 3)
     print('PAGE WIDTH:', page_width)
     page_list = []
@@ -203,7 +236,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         row_paths = []
         for col_header in col_headers:
             row_paths.append(row[col_header])
-        image_row = create_row_from_paths(row_paths, row_header, width, height)
+        image_row = create_row_from_paths(row_paths, row_header, row_header_layout)
         page_rows.append(image_row)
         if len(page_rows) % rows_per_page == 0:
             page = Image.fromarray(vertical_concat_images(page_rows))
