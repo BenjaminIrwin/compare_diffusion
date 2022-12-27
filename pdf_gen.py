@@ -183,7 +183,7 @@ def check_if_folder_exists(folder):
 
 def get_row_header_layout(row_headers, image_width=512, image_height=512):
     # Get length of longest row header
-    max_row_header_length = max(row_headers, key=len)
+    max_row_header_length = len(max(row_headers, key=len))
     if max_row_header_length < 10:
         width = int(image_width/3)
         fontsize = get_fontsize(width, max_row_header_length)
@@ -200,8 +200,7 @@ def get_row_header_layout(row_headers, image_width=512, image_height=512):
     return width, image_height, fontsize, wrap
 
 def get_col_header_layout(col_headers, image_width=512, image_height=512):
-    max_col_header_length = max(col_headers, key=len)
-    print('MAX COL HEADER LENGTH: ', max_col_header_length)
+    max_col_header_length = len(max(col_headers, key=len))
     if max_col_header_length < 20:
         height = int(image_height / 5)
         fontsize = get_fontsize(image_width, max_col_header_length)
