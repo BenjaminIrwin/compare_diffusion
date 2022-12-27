@@ -193,17 +193,10 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     page_width = (width * (len(col_headers))) + int(width / 3)
     print('PAGE WIDTH:', page_width)
     page_list = []
-    # Create a subsection header
-    hidden_param_string = ''
-    for hidden_param in hidden_params.keys():
-        hidden_param_string += hidden_param + ': ' + str(hidden_params[hidden_param]) + ', '
-    hidden_param_string = hidden_param_string[:-2]
-    subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 4))
-    subsection_headers = [subsection_header]
     # Create axis titles
     cols_title = create_cols_title(col_param, page_width, int(height / 3))
     # Create page list
-    page_rows = subsection_headers + [cols_title, column_header_row]
+    page_rows = [cols_title, column_header_row]
     num_header_rows = len(page_rows)
     for row_header in row_headers:
         row = files[row_header]
@@ -215,7 +208,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         if len(page_rows) % rows_per_page == 0:
             page = Image.fromarray(vertical_concat_images(page_rows))
             page_list.append(page)
-            page_rows = subsection_headers + [cols_title, column_header_row]
+            page_rows = [cols_title, column_header_row]
     if len(page_rows) > num_header_rows:
         page = Image.fromarray(vertical_concat_images(page_rows))
         page_list.append(page)
@@ -226,7 +219,15 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         # get page width and height
         page_width, page_height = page.size
         rows_title = create_rows_title(row_param, int(width / 3), page_height)
-        final_pages.append(Image.fromarray(horizontal_concat_images([rows_title, page])))
+        page = horizontal_concat_images([rows_title, page])
+        page_width, page_height = page.size
+        hidden_param_string = 'Hidden Params:\n'
+        for hidden_param in hidden_params.keys():
+            hidden_param_string += hidden_param + ': ' + str(hidden_params[hidden_param]) + ', '
+        hidden_param_string = hidden_param_string[:-2]
+        subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 4))
+        page = vertical_concat_images([subsection_header, page])
+        final_pages.append(Image.fromarray(page))
 
     if len(final_pages) > 1:
         final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
