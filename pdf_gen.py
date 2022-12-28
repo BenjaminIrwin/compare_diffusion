@@ -99,7 +99,7 @@ def create_rows_title(title, width, height):
 
 def create_cols_axis(col_headers, col_header_layout):
     images = [create_text_image(col_header, col_header_layout[0], col_header_layout[1], fontsize=col_header_layout[2],
-                                wrap=col_header_layout[3], x_justify=0, y_justify=0) for col_header in col_headers]
+                                wrap=col_header_layout[3], x_justify=0, y_justify=0.5) for col_header in col_headers]
     images.insert(0, create_blank_image(int(col_header_layout[0] / 3), col_header_layout[1]))
     return horizontal_concat_PIL_images(images)
 
