@@ -85,7 +85,7 @@ def vertical_concat_images(images):
 
 
 def create_hidden_param_row(subsection, width, height):
-    return create_text_image(subsection, width, height, x_justify=0.05, fontsize=20, wrap=True)
+    return create_text_image(subsection, width, height, x_justify=0.1, fontsize=20, wrap=True)
 
 
 def create_cols_title(title, width, height):
@@ -154,7 +154,7 @@ def create_text_image(text='final font size', width=512, height=512, x_justify=0
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
 
-    if text == '' or text == None:
+    if text == '' or text is None:
         return img
     elif wrap:
         text = get_wrapped_text(text, font, width)
