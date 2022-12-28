@@ -85,7 +85,7 @@ def vertical_concat_images(images):
 
 
 def create_hidden_param_row(subsection, width, height):
-    return create_text_image(subsection, width, height, x_justify=0.3, fontsize=20, wrap=True)
+    return create_text_image(subsection, width, height, fontsize=20, wrap=True)
 
 
 def create_cols_title(title, width, height):
@@ -145,7 +145,7 @@ def get_fontsize(width, text_length):
     return fontsize - 1
 
 
-def create_text_image(text='final font size', width=512, height=512, x_justify=0.5, y_justify=0.5, fontsize=43,
+def create_text_image(text='final font size', width=512, height=512, x_justify=0.05, y_justify=0.5, fontsize=43,
                       wrap=False):
 
     img = Image.new('RGB', (width, height), color=(255, 255, 255))
