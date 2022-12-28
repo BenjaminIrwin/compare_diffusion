@@ -84,7 +84,7 @@ def vertical_concat_images(images):
     return np.concatenate(images, axis=0)
 
 
-def create_subsection_header_row(subsection, width, height):
+def create_hidden_param_row(subsection, width, height):
     return create_text_image(subsection, width, height, x_justify=0, fontsize=20, wrap=True)
 
 
@@ -261,8 +261,8 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         for hidden_param in hidden_params.keys():
             hidden_param_string += hidden_param + ': ' + str(hidden_params[hidden_param]) + ', '
         hidden_param_string = hidden_param_string[:-2]
-        subsection_header = create_subsection_header_row(hidden_param_string, page_width, int(height / 4))
-        page = vertical_concat_images([subsection_header, page])
+        hidden_param_row = create_hidden_param_row(hidden_param_string, page_width, int(height / 4))
+        page = vertical_concat_images([hidden_param_row, page])
         final_pages.append(Image.fromarray(page))
 
     if len(final_pages) > 1:
