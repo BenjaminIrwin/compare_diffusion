@@ -159,8 +159,8 @@ def create_text_image(text='final font size', width=512, height=512, x_justify=0
         text = get_wrapped_text(text, font, width)
 
     # Position text
-    x = width * x_justify - (font.getsize(text)[0] * x_justify)
-    y = height * y_justify - (font.getsize(text)[1] * y_justify)
+    x = width * x_justify
+    y = height * y_justify
     print('CREATING TEXT IMAGE WITH TEXT: ' + text + ' AT COORDINATES: ' + str(x) + ', ' + str(y))
 
 
