@@ -208,7 +208,7 @@ def get_row_header_layout(row_headers, image_width=512, image_height=512):
 
 def get_col_header_layout(col_headers, image_width=512, image_height=512):
     max_col_header_length = max(col_headers, key=len)
-    if len(max_col_header_length) < 20:
+    if len(max_col_header_length) < 35:
         height = int(image_height / 5)
         fontsize = get_fontsize(image_width, max_col_header_length)
         wrap = False
