@@ -89,7 +89,7 @@ def create_hidden_param_row(subsection, width, height):
 
 
 def create_cols_title(title, width, height):
-    return create_text_image(title, width, height)
+    return create_text_image(title, width, height, x_justify=0.6)
 
 
 def create_rows_title(title, width, height):
@@ -235,7 +235,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     print('PAGE WIDTH:', page_width)
     page_list = []
     # Create axis titles
-    cols_title = create_cols_title(col_param, page_width, int(height / 3))
+    cols_title = create_cols_title(col_param, page_width, int(height / 4))
     # Create page list
     page_rows = [cols_title, column_header_row]
     num_header_rows = len(page_rows)
