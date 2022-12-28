@@ -263,7 +263,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         page = Image.fromarray(horizontal_concat_images([rows_title, page]))
         page_width, page_height = page.size
         hidden_param_string = get_hidden_params_string(hidden_params)
-        hidden_param_row = create_hidden_param_row(hidden_param_string, page_width, int(height / 7))
+        hidden_param_row = create_hidden_param_row(hidden_param_string, page_width, int(height / 5))
         page = vertical_concat_images([hidden_param_row, page])
         final_pages.append(Image.fromarray(page))
 
