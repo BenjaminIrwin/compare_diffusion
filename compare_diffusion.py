@@ -80,7 +80,7 @@ parser.add_argument('--rows', type=str, required=True, choices=dim_choices)
 parser.add_argument('--cols', type=str, required=True, choices=dim_choices)
 parser.add_argument('--model', type=str, nargs='+', required=True)
 parser.add_argument('--cfg_scale', type=float, nargs='+', required=True)
-parser.add_argument('--denoising_strength', type=float, nargs='+', required=True)
+parser.add_argument('--denoising_strength', type=float, nargs='*', default=[0.0])
 parser.add_argument('--prompt', type=str, nargs='+', required=True)
 parser.add_argument('--negative_prompt', type=str, nargs='*', default=[''])
 parser.add_argument('--seed', type=int, nargs='*', default=[1])
@@ -91,9 +91,9 @@ parser.add_argument('--width', type=int, default=512)
 def get_hidden_params(arguments, dimensions):
     params = {'type': (arguments['type']), 'height': (arguments['height']), 'width': (arguments['width'])}
     for dim in dimensions:
-        if arguments['rows'] != dim and arguments['cols'] != dim:
+        if arguments['rows'] != dim and arguments['cols'] != dim and dim in arguments:
             if len(arguments[dim]) > 1:
-                warnings.warn(f"More than one '{dim}' path provided, but rows nor cols are set to '{dim}'. Defaulting "
+                warnings.warn(f"More than one '{dim}' provided, but rows nor cols are set to '{dim}'. Defaulting "
                               f"to '{dim}' at index 0.")
             if arguments[dim][0] != '':
                 params[dim] = arguments[dim][0]
