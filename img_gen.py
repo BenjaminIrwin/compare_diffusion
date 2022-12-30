@@ -86,46 +86,46 @@ def generate_images(args, images, masks):
                                 if not os.path.exists(folder):
                                     os.makedirs(folder)
                                 for idx, image in enumerate(images):
-                                    try:
-                                        pil_image = Image.open(image)
-                                        pil_mask = Image.open(masks[idx])
-                                        image_name = image.split('/')[-1]
-                                        if inference_type == 'inpaint':
-                                            if inpaint_full_res:
-                                                mask = pil_mask.convert('L')
-                                                image_masked = Image.new('RGBA', (pil_image.width, pil_image.height))
-                                                image_masked.paste(image.convert("RGBA"),
-                                                                   mask=ImageOps.invert(
-                                                                       mask.convert('L')))
-                                                crop_region = get_crop_region(np.array(mask),
-                                                                              inpaint_full_res_padding)
-                                                crop_region = expand_crop_region(crop_region, width,
-                                                                                 height, mask.width,
-                                                                                 mask.height)
-                                                x1, y1, x2, y2 = crop_region
+                                    # try:
+                                    pil_image = Image.open(image)
+                                    pil_mask = Image.open(masks[idx])
+                                    image_name = image.split('/')[-1]
+                                    if inference_type == 'inpaint':
+                                        if inpaint_full_res:
+                                            mask = pil_mask.convert('L')
+                                            image_masked = Image.new('RGBA', (pil_image.width, pil_image.height))
+                                            image_masked.paste(image.convert("RGBA"),
+                                                               mask=ImageOps.invert(
+                                                                   mask.convert('L')))
+                                            crop_region = get_crop_region(np.array(mask),
+                                                                          inpaint_full_res_padding)
+                                            crop_region = expand_crop_region(crop_region, width,
+                                                                             height, mask.width,
+                                                                             mask.height)
+                                            x1, y1, x2, y2 = crop_region
 
-                                                mask = mask.crop(crop_region)
-                                                pil_mask = images.resize_image(2, mask, width, height)
-                                                paste_to = (x1, y1, x2 - x1, y2 - y1)
-                                            else:
-                                                paste_to = None
-                                                image_masked = None
+                                            mask = mask.crop(crop_region)
+                                            pil_mask = images.resize_image(2, mask, width, height)
+                                            paste_to = (x1, y1, x2 - x1, y2 - y1)
+                                        else:
+                                            paste_to = None
+                                            image_masked = None
 
-                                            output = model(prompt=prompt, image=pil_image.convert('RGB'),
-                                                           mask_image=pil_mask.convert('RGB'),
-                                                           guidance_scale=cfg_scale,
-                                                           generator=generator, height=height, width=width).images[0]
-                                            output = apply_overlay(output, paste_to, image_masked)
-                                            output.save(folder + '/' + str(image_name))
-                                        elif inference_type == 'img2img':
-                                            output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
-                                                           generator=generator, strength=denoising_strength,
-                                                           height=height, width=width).images[0]
-                                            output.save(folder + '/' + str(image_name))
-                                    except Exception as e:
-                                        print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                            negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                                        print(e)
+                                        output = model(prompt=prompt, image=pil_image.convert('RGB'),
+                                                       mask_image=pil_mask.convert('RGB'),
+                                                       guidance_scale=cfg_scale,
+                                                       generator=generator, height=height, width=width).images[0]
+                                        output = apply_overlay(output, paste_to, image_masked)
+                                        output.save(folder + '/' + str(image_name))
+                                    elif inference_type == 'img2img':
+                                        output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
+                                                       generator=generator, strength=denoising_strength,
+                                                       height=height, width=width).images[0]
+                                        output.save(folder + '/' + str(image_name))
+                                    # except Exception as e:
+                                    #     print('Error generating image with params: ' + str(prompt) + ' ' + str(
+                                    #         negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                    #     print(e)
 
 
 def get_model(hf_token, model_path, inference_type):
