@@ -10,22 +10,13 @@ from mask import get_crop_region, expand_crop_region
 LANCZOS = (Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else Image.LANCZOS)
 
 
-def apply_overlay(image, paste_loc, overlay):
-    if overlay is None:
-        return image
-
-    if paste_loc is not None:
+def apply_overlay(base_image, paste_loc, overlay):
+    if overlay is not None and paste_loc is not None:
         x, y, width, height = paste_loc
-        base_image = Image.new('RGBA', (overlay.width, overlay.height))
-        image = resize_image(1, image, width, height)
-        base_image.paste(image, (x, y))
-        image = base_image
+        overlay = resize_image(1, overlay, width, height)
+        base_image.paste(overlay, (x, y))
 
-    image = image.convert('RGBA')
-    image.alpha_composite(overlay)
-    image = image.convert('RGB')
-
-    return image
+    return base_image
 
 
 def resize(im, width, height):
@@ -74,13 +65,16 @@ def resize_image(resize_mode, im, width, height):
         if ratio < src_ratio:
             fill_height = height // 2 - src_h // 2
             res.paste(resized.resize((width, fill_height), box=(0, 0, width, 0)), box=(0, 0))
-            res.paste(resized.resize((width, fill_height), box=(0, resized.height, width, resized.height)), box=(0, fill_height + src_h))
+            res.paste(resized.resize((width, fill_height), box=(0, resized.height, width, resized.height)),
+                      box=(0, fill_height + src_h))
         elif ratio > src_ratio:
             fill_width = width // 2 - src_w // 2
             res.paste(resized.resize((fill_width, height), box=(0, 0, 0, height)), box=(0, 0))
-            res.paste(resized.resize((fill_width, height), box=(resized.width, 0, resized.width, height)), box=(fill_width + src_w, 0))
+            res.paste(resized.resize((fill_width, height), box=(resized.width, 0, resized.width, height)),
+                      box=(fill_width + src_w, 0))
 
     return res
+
 
 def generate_images(args, images, masks):
     hf_token = args['hf_token']
@@ -115,7 +109,8 @@ def generate_images(args, images, masks):
                                 try:
                                     # Call txt2img
                                     output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator,
-                                                negative_prompt=negative_prompt, height=height, width=width).images[0]
+                                                   negative_prompt=negative_prompt, height=height, width=width).images[
+                                        0]
                                     # Generate image name as increment of previous image
                                     output.save(folder + '/output_' + str(output_counter) + '.png')
                                     output_counter += 1
@@ -137,30 +132,17 @@ def generate_images(args, images, masks):
                                     if inference_type == 'inpaint':
                                         if inpaint_full_res:
                                             print('INPAINTING FULL RES')
-                                            mask = pil_mask.convert('L')
-                                            image_masked = Image.new('RGBA', (pil_image.width, pil_image.height))
-                                            image_masked.paste(pil_image.convert("RGBA"),
-                                                               mask=ImageOps.invert(
-                                                                   mask))
-                                            crop_region = get_crop_region(np.array(mask),
-                                                                          inpaint_full_res_padding)
-                                            crop_region = expand_crop_region(crop_region, width,
-                                                                             height, mask.width,
-                                                                             mask.height)
-                                            x1, y1, x2, y2 = crop_region
-
-                                            mask = mask.crop(crop_region)
-                                            pil_mask = resize_image(2, mask, pil_image.width, pil_image.height)
-                                            paste_to = (x1, y1, x2 - x1, y2 - y1)
-                                        else:
-                                            paste_to = None
-                                            image_masked = None
+                                            paste_to, pil_image, pil_mask = get_inpainting_full_res_data(
+                                                inpaint_full_res_padding,
+                                                pil_image,
+                                                pil_mask)
 
                                         output = model(prompt=prompt, image=pil_image.convert('RGB'),
                                                        mask_image=pil_mask.convert('RGB'),
                                                        guidance_scale=cfg_scale,
                                                        generator=generator, height=height, width=width).images[0]
-                                        output = apply_overlay(output, paste_to, image_masked)
+                                        if inpaint_full_res:
+                                            output = apply_overlay(Image.open(image), paste_to, output)
                                         output.save(folder + '/' + str(image_name))
                                     elif inference_type == 'img2img':
                                         output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
@@ -171,6 +153,24 @@ def generate_images(args, images, masks):
                                     #     print('Error generating image with params: ' + str(prompt) + ' ' + str(
                                     #         negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                     #     print(e)
+
+
+def get_inpainting_full_res_data(inpaint_full_res_padding, pil_image, pil_mask):
+    monochannel_mask = pil_mask.convert('L')
+    crop_region = get_crop_region(np.array(monochannel_mask),
+                                  inpaint_full_res_padding)
+    crop_region = expand_crop_region(crop_region, pil_image.width,
+                                     pil_image.height, monochannel_mask.width,
+                                     monochannel_mask.height)
+    x1, y1, x2, y2 = crop_region
+    monochannel_mask = monochannel_mask.crop(crop_region)
+    cropped_image = pil_image.crop(crop_region)
+    pil_mask = resize_image(2, monochannel_mask, pil_image.width,
+                            pil_image.height)
+    pil_image = resize_image(2, cropped_image, pil_image.width,
+                             pil_image.height)
+    paste_to = (x1, y1, x2 - x1, y2 - y1)
+    return paste_to, pil_image, pil_mask
 
 
 def get_model(hf_token, model_path, inference_type):
