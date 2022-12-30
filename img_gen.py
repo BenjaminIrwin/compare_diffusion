@@ -92,11 +92,12 @@ def generate_images(args, images, masks):
                                     image_name = image.split('/')[-1]
                                     if inference_type == 'inpaint':
                                         if inpaint_full_res:
+                                            print('INPAINTING FULL RES')
                                             mask = pil_mask.convert('L')
                                             image_masked = Image.new('RGBA', (pil_image.width, pil_image.height))
                                             image_masked.paste(image.convert("RGBA"),
                                                                mask=ImageOps.invert(
-                                                                   mask.convert('L')))
+                                                                   mask))
                                             crop_region = get_crop_region(np.array(mask),
                                                                           inpaint_full_res_padding)
                                             crop_region = expand_crop_region(crop_region, width,
