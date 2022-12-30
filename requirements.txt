@@ -1,6 +1,5 @@
 accelerate==0.15.0
 certifi==2022.12.7
-charset-normalizer==3.0.1
 diffusers==0.11.1
 filelock==3.9.0
 huggingface-hub==0.11.1
