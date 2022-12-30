@@ -150,7 +150,7 @@ def generate_images(args, images, masks):
                                             x1, y1, x2, y2 = crop_region
 
                                             mask = mask.crop(crop_region)
-                                            pil_mask = images.resize_image(2, mask, pil_image.width, pil_image.height)
+                                            pil_mask = resize_image(2, mask, pil_image.width, pil_image.height)
                                             paste_to = (x1, y1, x2 - x1, y2 - y1)
                                         else:
                                             paste_to = None
