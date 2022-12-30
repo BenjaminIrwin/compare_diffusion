@@ -211,7 +211,7 @@ def get_headers(files):
 
 
 def get_hidden_params_string(hidden_params):
-    hidden_param_string = 'Hidden Params -\n'
+    hidden_param_string = 'Hidden Params:: \n'
     for hidden_param in hidden_params.keys():
         hidden_param_string += hidden_param + ': ' + str(hidden_params[hidden_param]) + ', '
     hidden_param_string = hidden_param_string[:-2]

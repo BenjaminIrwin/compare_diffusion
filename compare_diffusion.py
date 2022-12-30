@@ -64,10 +64,10 @@ def clean(image_files, mask_files):
     return clean_images, clean_masks
 
 
-def get_hidden_params(arguments, dimensions):
+def get_hidden_params(arguments):
     params = {'type': (arguments['type']), 'height': (arguments['height']), 'width': (arguments['width'])}
-    for dim in dimensions:
-        if arguments['rows'] != dim and arguments['cols'] != dim and dim in arguments:
+    for dim in arguments.keys():
+        if arguments['rows'] != dim and arguments['cols'] != dim:
             if len(arguments[dim]) > 1:
                 warnings.warn(f"More than one '{dim}' provided, but rows nor cols are set to '{dim}'. Defaulting "
                               f"to '{dim}' at index 0.")
@@ -111,6 +111,6 @@ if __name__ == "__main__":
             images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
 
     # generate_images(args, images, masks)
-    hidden_params = get_hidden_params(args, dim_choices)
+    hidden_params = get_hidden_params(args)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=args['output_path'])
