@@ -67,7 +67,7 @@ def clean(image_files, mask_files):
 def get_hidden_params(arguments):
     params = {'type': (arguments['type']), 'height': (arguments['height']), 'width': (arguments['width'])}
     for dim in arguments.keys():
-        if dim != 'hf_token' and dim != 'rows' and dim != 'cols' and dim != 'ouput_path':
+        if dim != 'hf_token' and dim != 'rows' and dim != 'cols' and dim != 'output_path':
             if arguments['rows'] != dim and arguments['cols'] != dim:
                 # check if the argument is a list
                 if type(arguments[dim]) == list:
@@ -116,7 +116,7 @@ if __name__ == "__main__":
         elif args['type'] == 'inpaint':
             images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
 
-    # generate_images(args, images, masks)
+    generate_images(args, images, masks)
     hidden_params = get_hidden_params(args)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=args['output_path'])
