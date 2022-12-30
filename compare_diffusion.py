@@ -99,6 +99,9 @@ parser.add_argument('--inpaint_full_res_padding', type=int, default=35)
 if __name__ == "__main__":
     args = parser.parse_args().__dict__
     images, masks = None, None
+    if args['rows'] == args['cols']:
+        print('ERROR: Rows and columns cannot be the same.')
+        exit(1)
     if args['type'] == 'txt2img':
         args['denoising_strength_list'] = [0.0]
     else:
