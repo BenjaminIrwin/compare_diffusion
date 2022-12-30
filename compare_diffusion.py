@@ -67,17 +67,18 @@ def clean(image_files, mask_files):
 def get_hidden_params(arguments):
     params = {'type': (arguments['type']), 'height': (arguments['height']), 'width': (arguments['width'])}
     for dim in arguments.keys():
-        if arguments['rows'] != dim and arguments['cols'] != dim:
-            # check if the argument is a list
-            if type(arguments[dim]) == list:
-                if len(arguments[dim]) > 1:
-                    warnings.warn(f"More than one '{dim}' provided, but rows nor cols are set to '{dim}'. Defaulting "
-                                  f"to '{dim}' at index 0.")
-                if arguments[dim][0] != '':
-                    params[dim] = arguments[dim][0]
-            else:
-                if arguments[dim] != '':
-                    params[dim] = arguments[dim]
+        if dim != 'hf_token' and dim != 'rows' and dim != 'cols' and dim != 'ouput_path':
+            if arguments['rows'] != dim and arguments['cols'] != dim:
+                # check if the argument is a list
+                if type(arguments[dim]) == list:
+                    if len(arguments[dim]) > 1:
+                        warnings.warn(f"More than one '{dim}' provided, but rows nor cols are set to '{dim}'. Defaulting "
+                                      f"to '{dim}' at index 0.")
+                    if arguments[dim][0] != '':
+                        params[dim] = arguments[dim][0]
+                else:
+                    if arguments[dim] != '':
+                        params[dim] = arguments[dim]
 
     return params
 
