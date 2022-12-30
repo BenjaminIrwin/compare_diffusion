@@ -95,7 +95,7 @@ def generate_images(args, images, masks):
                                             print('INPAINTING FULL RES')
                                             mask = pil_mask.convert('L')
                                             image_masked = Image.new('RGBA', (pil_image.width, pil_image.height))
-                                            image_masked.paste(image.convert("RGBA"),
+                                            image_masked.paste(pil_image.convert("RGBA"),
                                                                mask=ImageOps.invert(
                                                                    mask))
                                             crop_region = get_crop_region(np.array(mask),
