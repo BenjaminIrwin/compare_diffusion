@@ -72,8 +72,9 @@ def get_hidden_params(arguments):
                 # check if the argument is a list
                 if type(arguments[dim]) == list:
                     if len(arguments[dim]) > 1:
-                        warnings.warn(f"More than one '{dim}' provided, but rows nor cols are set to '{dim}'. Defaulting "
-                                      f"to '{dim}' at index 0.")
+                        warnings.warn(
+                            f"More than one '{dim}' provided, but rows nor cols are set to '{dim}'. Defaulting "
+                            f"to '{dim}' at index 0.")
                     if arguments[dim][0] != '':
                         params[dim] = arguments[dim][0]
                 else:
@@ -86,21 +87,27 @@ def get_hidden_params(arguments):
 dim_choices = ['model', 'image', 'cfg_scale', 'denoising_strength', 'prompt', 'negative_prompt', 'seed']
 
 parser = argparse.ArgumentParser(description='Compare Diffusion')
-parser.add_argument('--hf_token', type=str, required=True)
-parser.add_argument('--output_path', type=str, required=True)
-parser.add_argument('--type', type=str, required=True, choices=['img2img', 'txt2img', 'inpaint'])
-parser.add_argument('--rows', type=str, required=True, choices=dim_choices)
-parser.add_argument('--cols', type=str, required=True, choices=dim_choices)
-parser.add_argument('--model', type=str, nargs='+', required=True)
-parser.add_argument('--cfg_scale', type=float, nargs='+', required=True)
-parser.add_argument('--denoising_strength', type=float, nargs='*', default=[0.0])
-parser.add_argument('--prompt', type=str, nargs='+', required=True)
-parser.add_argument('--negative_prompt', type=str, nargs='*', default=[''])
-parser.add_argument('--seed', type=int, nargs='*', default=[1])
-parser.add_argument('--height', type=int, default=512)
-parser.add_argument('--width', type=int, default=512)
-parser.add_argument('--inpaint_full_res', type=bool, default=False)
-parser.add_argument('--inpaint_full_res_padding', type=int, default=35)
+parser.add_argument('--hf_token', type=str, required=True, help='Your Hugging Face token.')
+parser.add_argument('--output_path', type=str, required=True, help='Where to save the output.')
+parser.add_argument('--type', type=str, required=True, choices=['img2img', 'txt2img', 'inpaint'],
+                    help='Inference type.')
+parser.add_argument('--rows', type=str, required=True, choices=dim_choices, help='Which dimension of ' +
+                                                                                 str(dim_choices) + 'to use for rows.')
+parser.add_argument('--cols', type=str, required=True, choices=dim_choices, help='Which dimension of ' + str(dim_choices)
+                                                                                 + 'to use for columns.')
+parser.add_argument('--model', type=str, nargs='+', required=True, help='Selected model(s). Can be path to CKPT or HF '
+                                                                        'model name.')
+parser.add_argument('--cfg_scale', type=float, nargs='+', required=True, help='Selected cfg_scale(s).')
+parser.add_argument('--denoising_strength', type=float, nargs='*', default=[0.0],
+                    help='Selected denoising_strength(s).')
+parser.add_argument('--prompt', type=str, nargs='+', required=True, help='Selected prompt(s).')
+parser.add_argument('--negative_prompt', type=str, nargs='*', default=[''], help='Selected negative_prompt(s).')
+parser.add_argument('--seed', type=int, nargs='*', default=[1], help='Selected seed(s).')
+parser.add_argument('--height', type=int, default=512, help='Height of the input/output images.')
+parser.add_argument('--width', type=int, default=512, help='Width of the input/output images.')
+parser.add_argument('--inpaint_full_res', type=bool, default=False, help='Whether to inpaint at full resolution.')
+parser.add_argument('--inpaint_full_res_padding', type=int, default=35, help='Padding for inpainting at full '
+                                                                             'resolution.')
 
 if __name__ == "__main__":
     args = parser.parse_args().__dict__
