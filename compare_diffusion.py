@@ -4,6 +4,7 @@ import warnings
 
 from PIL import Image
 
+from img_gen import generate_images
 from pdf_gen import generate_pdf
 
 
@@ -92,6 +93,8 @@ parser.add_argument('--negative_prompt', type=str, nargs='*', default=[''])
 parser.add_argument('--seed', type=int, nargs='*', default=[1])
 parser.add_argument('--height', type=int, default=512)
 parser.add_argument('--width', type=int, default=512)
+parser.add_argument('--inpaint_full_res', type=bool, default=False)
+parser.add_argument('--inpaint_full_res_padding', type=int, default=35)
 
 if __name__ == "__main__":
     args = parser.parse_args().__dict__
