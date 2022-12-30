@@ -81,6 +81,8 @@ def vertical_concat_images(images):
 
 
 def create_hidden_param_row(subsection, width, height):
+    height = get_col_header_height(subsection, width, height,
+                                   font=ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", 50))
     return create_text_image(subsection, width, height, x_justify=0.01, wrap=True)
 
 
@@ -124,8 +126,8 @@ def filter_paths_by_names(paths, names):
     return [path for path in paths if any(name in path for name in names)]
 
 
-def get_row_header_width(row_headers, image_height, image_width, font):
-    longest_row_header = str(max(row_headers, key=len)).replace('-', ' ').replace('_', ' ')
+def get_row_header_width(longest_row_header, image_height, image_width, font):
+    longest_row_header = longest_row_header.replace('-', ' ').replace('_', ' ')
     longest_word = max(longest_row_header.split(), key=len)
     longest_word_width = font.getsize(longest_word)[0]
     scale = 0.1
@@ -143,8 +145,7 @@ def get_row_header_width(row_headers, image_height, image_width, font):
     return width
 
 
-def get_col_header_height(col_headers, image_width, image_height, font):
-    longest_col_header = str(max(col_headers, key=len))
+def get_col_header_height(longest_col_header, image_width, image_height, font):
     scale = 0.1
     found_height = False
     height = int(image_height * scale)
@@ -166,8 +167,8 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     image_paths = get_all_images_in_subtree(generated_images_path)
     files = load_files(image_paths, row_param, col_param)
     col_headers, row_headers = get_headers(files)
-    col_header_height = get_col_header_height(col_headers, width, height, font)
-    row_header_width = get_row_header_width(row_headers, height, width, font)
+    col_header_height = get_col_header_height(str(max(col_headers, key=len)), width, height, font)
+    row_header_width = get_row_header_width(str(max(row_headers, key=len)), height, width, font)
     column_header_row = create_cols_axis(col_headers, width, col_header_height, font, row_header_width)
     cols_title = create_cols_title(col_param, column_header_row.width, int(height / 3))
     page_list = []
@@ -194,7 +195,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         page = Image.fromarray(horizontal_concat_images([rows_title, page]))
         page_width = page.width
         hidden_param_string = get_hidden_params_string(hidden_params)
-        hidden_param_row = create_hidden_param_row(hidden_param_string, page_width, int(height / 5))
+        hidden_param_row = create_hidden_param_row(hidden_param_string, page_width, height)
         page = vertical_concat_images([hidden_param_row, page])
         final_pages.append(Image.fromarray(page))
     if len(final_pages) > 1:

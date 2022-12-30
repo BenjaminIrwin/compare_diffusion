@@ -2,7 +2,7 @@ import os
 
 import numpy as np
 import torch
-from PIL import Image, ImageOps
+from PIL import Image
 from diffusers import StableDiffusionPipeline, StableDiffusionImg2ImgPipeline, StableDiffusionInpaintPipeline
 
 from mask import get_crop_region, expand_crop_region
@@ -17,20 +17,6 @@ def apply_overlay(base_image, paste_loc, overlay):
         base_image.paste(overlay, (x, y))
 
     return base_image
-
-
-def resize(im, width, height):
-    ratio = width / height
-    src_ratio = im.width / im.height
-
-    src_w = width if ratio > src_ratio else im.width * height // im.height
-    src_h = height if ratio <= src_ratio else im.height * width // im.width
-
-    resized = im.resize((width, height), resample=LANCZOS)
-    res = Image.new("RGB", (width, height))
-    res.paste(resized, box=(width // 2 - src_w // 2, height // 2 - src_h // 2))
-
-    return res
 
 
 def resize_image(resize_mode, im, width, height):
@@ -132,8 +118,7 @@ def generate_images(args, images, masks):
                                         image_name = image.split('/')[-1]
                                         if inference_type == 'inpaint':
                                             if inpaint_full_res:
-                                                print('INPAINTING FULL RES')
-                                                paste_to, pil_image, pil_mask = get_inpainting_full_res_data(
+                                                paste_to, pil_image, pil_mask = full_res_transform(
                                                     inpaint_full_res_padding,
                                                     pil_image,
                                                     pil_mask)
@@ -156,7 +141,7 @@ def generate_images(args, images, masks):
                                         print(e)
 
 
-def get_inpainting_full_res_data(inpaint_full_res_padding, pil_image, pil_mask):
+def full_res_transform(inpaint_full_res_padding, pil_image, pil_mask):
     monochannel_mask = pil_mask.convert('L')
     crop_region = get_crop_region(np.array(monochannel_mask),
                                   inpaint_full_res_padding)
