@@ -126,34 +126,34 @@ def generate_images(args, images, masks):
                                     os.makedirs(folder)
                                 for idx, image in enumerate(images):
                                     print(image)
-                                    # try:
-                                    pil_image = Image.open(image)
-                                    pil_mask = Image.open(masks[idx])
-                                    image_name = image.split('/')[-1]
-                                    if inference_type == 'inpaint':
-                                        if inpaint_full_res:
-                                            print('INPAINTING FULL RES')
-                                            paste_to, pil_image, pil_mask = get_inpainting_full_res_data(
-                                                inpaint_full_res_padding,
-                                                pil_image,
-                                                pil_mask)
+                                    try:
+                                        pil_image = Image.open(image)
+                                        pil_mask = Image.open(masks[idx])
+                                        image_name = image.split('/')[-1]
+                                        if inference_type == 'inpaint':
+                                            if inpaint_full_res:
+                                                print('INPAINTING FULL RES')
+                                                paste_to, pil_image, pil_mask = get_inpainting_full_res_data(
+                                                    inpaint_full_res_padding,
+                                                    pil_image,
+                                                    pil_mask)
 
-                                        output = model(prompt=prompt, image=pil_image.convert('RGB'),
-                                                       mask_image=pil_mask.convert('RGB'),
-                                                       guidance_scale=cfg_scale,
-                                                       generator=generator, height=height, width=width).images[0]
-                                        if inpaint_full_res:
-                                            output = apply_overlay(Image.open(image), paste_to, output)
-                                        output.save(folder + '/' + str(image_name))
-                                    elif inference_type == 'img2img':
-                                        output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
-                                                       generator=generator, strength=denoising_strength,
-                                                       height=height, width=width).images[0]
-                                        output.save(folder + '/' + str(image_name))
-                                    # except Exception as e:
-                                    #     print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                    #         negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                                    #     print(e)
+                                            output = model(prompt=prompt, image=pil_image.convert('RGB'),
+                                                           mask_image=pil_mask.convert('RGB'),
+                                                           guidance_scale=cfg_scale,
+                                                           generator=generator, height=height, width=width).images[0]
+                                            if inpaint_full_res:
+                                                output = apply_overlay(Image.open(image), paste_to, output)
+                                            output.save(folder + '/' + str(image_name))
+                                        elif inference_type == 'img2img':
+                                            output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
+                                                           generator=generator, strength=denoising_strength,
+                                                           height=height, width=width).images[0]
+                                            output.save(folder + '/' + str(image_name))
+                                    except Exception as e:
+                                        print('Error generating image with params: ' + str(prompt) + ' ' + str(
+                                            negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                        print(e)
 
 
 def get_inpainting_full_res_data(inpaint_full_res_padding, pil_image, pil_mask):
