@@ -1,7 +1,9 @@
 import os
 
 import numpy as np
-from PIL import Image, ImageFont, ImageDraw
+from PIL import Image, ImageFont
+
+from text_gen import get_wrapped_text, create_text_image
 
 
 def get_parameter_from_path(path, param_prefix):
@@ -12,8 +14,7 @@ def get_parameter_from_path(path, param_prefix):
     for component in path_components:
         if component.startswith(param_prefix):
             # Split the component by '_' and return the second element (the value)
-            # Strip the curly braces from the value
-            return component.replace(param_prefix, '').strip('{}')
+            return component.replace(param_prefix, '')
 
     # If the parameter was not found, return None
     return None
@@ -63,16 +64,11 @@ def extract_keys_from_nested_dict(d, n):
         return keys
 
 
-def horizontal_concat_images_from_paths(image_paths):
-    return horizontal_concat_images([np.array(image) for image in get_PIL_images_from_paths(image_paths)])
-
-
 def horizontal_concat_PIL_images(images):
     return Image.fromarray(horizontal_concat_images([np.array(image) for image in images]))
 
 
 def horizontal_concat_images(images):
-    # Concatenate the images horizontally if they are not zero-dimensional
     return np.concatenate(images, axis=1)
 
 
@@ -89,12 +85,14 @@ def create_hidden_param_row(subsection, width, height):
 
 
 def create_cols_title(title, width, height):
-    return create_text_image(title, width, height, x_justify=0.6, y_justify=0.5, font=ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", 50))
+    return create_text_image(title, width, height, x_justify=0.6, y_justify=0.5,
+                             font=ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", 50))
 
 
 def create_rows_title(title, width, height):
-    image = create_text_image(title, height, width, x_justify=0.3, y_justify=0.5, font=ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", 50)).rotate(90, expand=True)
-    return image
+    return create_text_image(title, height, width, x_justify=0.3, y_justify=0.5,
+                             font=ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", 50)).rotate(90,
+                                                                                                          expand=True)
 
 
 def create_cols_axis(col_headers, width, height, font, indent_width):
@@ -118,121 +116,47 @@ def create_blank_image(width, height):
     return Image.new('RGB', (width, height), color=(255, 255, 255))
 
 
-def get_wrapped_text(text: str, font, line_length: int):
-    lines = ['']
-    text = text.replace('-', ' ').replace('_', ' ')
-    for word in text.split():
-        line = f'{lines[-1]} {word}'.strip()
-        if font.getlength(line) <= line_length:
-            lines[-1] = line
-        else:
-            lines.append(word)
-    return '\n'.join(lines)
-
-
-def get_fontsize(width, height, text_length):
-    fontsize = 1  # starting font size
-    font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
-    # portion of image width you want text width to be
-    img_fraction = 0.95
-    while font.getlength(text_length) < img_fraction * width and font.getsize(text_length)[1] < img_fraction * height:
-        # iterate until the text size is just larger than the criteria
-        fontsize += 1
-        font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", fontsize)
-    return fontsize - 1
-
-
-def create_text_image(text='final font size', width=512, height=512, x_justify=0.05, y_justify=0.5, font=ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", 43),
-                      wrap=False):
-
-    img = Image.new('RGB', (width, height), color=(255, 255, 255))
-
-    draw = ImageDraw.Draw(img)
-
-    if text == '' or text is None:
-        return img
-    elif wrap:
-        text = get_wrapped_text(text, font, width)
-
-    # Position text
-    x = width * x_justify
-    y = height * y_justify
-
-
-    # Draw the text
-    draw.text((x, y), text, fill=(0, 0, 0), font=font)
-
-    return img
-
-
 def get_PIL_images_from_paths(image_paths):
     return [Image.open(path).convert('RGB') for path in image_paths]
-
-
-def split_list_into_chunks(list, chunk_max_size):
-    return [list[i:i + chunk_max_size] for i in range(0, len(list), chunk_max_size)]
 
 
 def filter_paths_by_names(paths, names):
     return [path for path in paths if any(name in path for name in names)]
 
 
-def check_if_folder_exists(folder):
-    import os
-    return os.path.exists(folder)
-
-
 def get_row_header_width(row_headers, image_height, image_width, font):
-    # Get length of longest row header
-    max_row_header_length = max(row_headers, key=len)
-
+    longest_row_header = str(max(row_headers, key=len)).replace('-', ' ').replace('_', ' ')
+    longest_word = max(longest_row_header.split(), key=len)
+    longest_word_width = font.getsize(longest_word)[0]
     scale = 0.1
     found_width = False
     width = int(image_width * scale)
     while not found_width:
-
-        # Get how many lines it will be when wrapped
-        wrapped_text = get_wrapped_text(max_row_header_length, font, width)
-        num_lines = wrapped_text.count('\n') + 1  # +1 because it doesn't count the first line
-
-        # Multiply num_lines by font height to get height of image
-        height = num_lines * font.getsize(max_row_header_length)[1]
-        # Get longest word in longest row header
-        max_row_header_word = max(wrapped_text.split(), key=len)
-        longest_word_width = font.getsize(max_row_header_word)[0]
-
+        wrapped_text = get_wrapped_text(longest_row_header, font, width)
+        num_lines = wrapped_text.count('\n') + 1
+        height = num_lines * font.getsize(longest_row_header)[1]
         if height < image_height and longest_word_width < width:
             found_width = True
         else:
             scale += 0.1
             width = int(image_width * scale)
-
     return width
 
 
 def get_col_header_height(col_headers, image_width, image_height, font):
-    max_col_header_length = max(col_headers, key=len)
-
+    longest_col_header = str(max(col_headers, key=len))
     scale = 0.1
     found_height = False
     height = int(image_height * scale)
     while not found_height:
-
-        # Get how many lines it will be when wrapped
-        num_lines = get_wrapped_text(max_col_header_length, font,
-                                     image_width).count('\n') + 1  # +1 because it doesn't count the first line
-        # Multiply num_lines by font height to get height of image
-        height = num_lines * font.getsize(max_col_header_length)[1]
-
+        num_lines = get_wrapped_text(longest_col_header, font, image_width).count('\n') + 1
+        height = num_lines * font.getsize(longest_col_header)[1]
         if height < image_height:
             found_height = True
         else:
             scale += 0.1
             height = int(image_height * scale)
-
-    # Add padding to height
     height += int(height * 0.05)
-
     return height
 
 
@@ -245,9 +169,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     col_header_height = get_col_header_height(col_headers, width, height, font)
     row_header_width = get_row_header_width(row_headers, height, width, font)
     column_header_row = create_cols_axis(col_headers, width, col_header_height, font, row_header_width)
-    # Create axis titles
     cols_title = create_cols_title(col_param, column_header_row.width, int(height / 3))
-    # Create page list
     page_list = []
     page_rows = [cols_title, column_header_row]
     num_header_rows = len(page_rows)
@@ -265,11 +187,8 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     if len(page_rows) > num_header_rows:
         page = Image.fromarray(vertical_concat_images(page_rows))
         page_list.append(page)
-
-    # Create pdf
     final_pages = []
     for idx, page in enumerate(page_list):
-        # get page width and height
         page_width, page_height = page.size
         rows_title = create_rows_title(row_param, int(width / 3), page_height)
         page = Image.fromarray(horizontal_concat_images([rows_title, page]))
@@ -278,7 +197,6 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         hidden_param_row = create_hidden_param_row(hidden_param_string, page_width, int(height / 5))
         page = vertical_concat_images([hidden_param_row, page])
         final_pages.append(Image.fromarray(page))
-
     if len(final_pages) > 1:
         final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
     else:

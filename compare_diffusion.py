@@ -4,7 +4,6 @@ import warnings
 
 from PIL import Image
 
-from img_gen import generate_images
 from pdf_gen import generate_pdf
 
 
@@ -17,12 +16,13 @@ def get_image_paths(parent_path):
     return image_paths
 
 
+# noinspection PyBroadException
 def validate(fp: str) -> bool:
     try:
         Image.open(fp)
         return True
     except:
-        print(f'WARNING: Image cannot be opened: {fp}')
+        warnings.warn('WARNING: Image cannot be opened: {fp}')
         return False
 
 
@@ -31,8 +31,6 @@ def extract_input_num(path):
 
 
 def clean(image_files, mask_files):
-    print('ImageStore: Sorting images and masks')
-
     clean_images = []
     clean_masks = []
 
@@ -65,9 +63,17 @@ def clean(image_files, mask_files):
     return clean_images, clean_masks
 
 
-def create_folder(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
+def get_hidden_params(arguments, dimensions):
+    params = {'type': (arguments['type']), 'height': (arguments['height']), 'width': (arguments['width'])}
+    for dim in dimensions:
+        if arguments['rows'] != dim and arguments['cols'] != dim and dim in arguments:
+            if len(arguments[dim]) > 1:
+                warnings.warn(f"More than one '{dim}' provided, but rows nor cols are set to '{dim}'. Defaulting "
+                              f"to '{dim}' at index 0.")
+            if arguments[dim][0] != '':
+                params[dim] = arguments[dim][0]
+
+    return params
 
 
 dim_choices = ['model', 'image', 'cfg_scale', 'denoising_strength', 'prompt', 'negative_prompt', 'seed']
@@ -87,20 +93,6 @@ parser.add_argument('--seed', type=int, nargs='*', default=[1])
 parser.add_argument('--height', type=int, default=512)
 parser.add_argument('--width', type=int, default=512)
 
-
-def get_hidden_params(arguments, dimensions):
-    params = {'type': (arguments['type']), 'height': (arguments['height']), 'width': (arguments['width'])}
-    for dim in dimensions:
-        if arguments['rows'] != dim and arguments['cols'] != dim and dim in arguments:
-            if len(arguments[dim]) > 1:
-                warnings.warn(f"More than one '{dim}' provided, but rows nor cols are set to '{dim}'. Defaulting "
-                              f"to '{dim}' at index 0.")
-            if arguments[dim][0] != '':
-                params[dim] = arguments[dim][0]
-
-    return params
-
-
 if __name__ == "__main__":
     args = parser.parse_args().__dict__
     images, masks = None, None
@@ -112,7 +104,7 @@ if __name__ == "__main__":
         elif args['type'] == 'inpaint':
             images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
 
-    # generate_images(args, images, masks)
+    generate_images(args, images, masks)
     hidden_params = get_hidden_params(args, dim_choices)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=args['output_path'])

@@ -5,11 +5,6 @@ from PIL import Image
 from diffusers import StableDiffusionPipeline, StableDiffusionImg2ImgPipeline, StableDiffusionInpaintPipeline
 
 
-def create_folder(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
 def generate_images(args, images, masks):
     hf_token = args['hf_token']
     output_path = args['output_path']
@@ -21,23 +16,23 @@ def generate_images(args, images, masks):
     denoising_strength_list = args['denoising_strength']
     negative_prompts = args['negative_prompt']
     seeds = args['seed']
-    type = args['type']
+    inference_type = args['type']
 
     output_counter = 0
 
     for model_path in model_paths:
-        model = get_model(hf_token, model_path, type).to("cuda")
-        print('Loaded model: ' + model_path.split("/")[-1])
+        model = get_model(hf_token, model_path, inference_type).to("cuda")
         for prompt in prompts:
             for negative_prompt in negative_prompts:
                 for cfg_scale in cfg_scale_list:
                     for denoising_strength in denoising_strength_list:
                         for seed in seeds:
                             generator = torch.Generator("cuda").manual_seed(seed)
-                            if type == 'txt2img':
+                            if inference_type == 'txt2img':
                                 folder = f'{output_path}/m_{model_path.split("/")[-1]}/p_{prompt}/' \
                                          f'n_{negative_prompt}/c_{cfg_scale}/s_{seed}'
-                                create_folder(folder)
+                                if not os.path.exists(folder):
+                                    os.makedirs(folder)
                                 try:
                                     # Call txt2img
                                     output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator,
@@ -54,19 +49,20 @@ def generate_images(args, images, masks):
                             else:
                                 folder = f'{output_path}/m_{model_path.split("/")[-1]}/p_{prompt}/' \
                                          f'n_{negative_prompt}/c_{cfg_scale}/d_{denoising_strength}/s_{seed}'
-                                create_folder(folder)
+                                if not os.path.exists(folder):
+                                    os.makedirs(folder)
                                 for idx, image in enumerate(images):
                                     try:
                                         pil_image = Image.open(image)
                                         image_name = image.split('/')[-1]
-                                        if type == 'inpaint':
+                                        if inference_type == 'inpaint':
                                             pil_mask = Image.open(masks[idx])
                                             output = model(prompt=prompt, image=pil_image.convert('RGB'),
                                                            mask_image=pil_mask.convert('RGB'),
                                                            guidance_scale=cfg_scale,
                                                            generator=generator, height=height, width=width).images[0]
                                             output.save(folder + '/' + str(image_name))
-                                        elif type == 'img2img':
+                                        elif inference_type == 'img2img':
                                             output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
                                                            generator=generator, strength=denoising_strength,
                                                            height=height, width=width).images[0]
@@ -77,15 +73,15 @@ def generate_images(args, images, masks):
                                         print(e)
 
 
-def get_model(hf_token, model_path, type):
-    if type == 'txt2img':
+def get_model(hf_token, model_path, inference_type):
+    if inference_type == 'txt2img':
         return StableDiffusionPipeline.from_pretrained(model_path, use_auth_token=hf_token,
                                                        torch_dtype=torch.float16)
-    elif type == 'img2img':
+    elif inference_type == 'img2img':
         return StableDiffusionImg2ImgPipeline.from_pretrained(model_path, use_auth_token=hf_token,
                                                               torch_dtype=torch.float16)
-    elif type == 'inpaint':
+    elif inference_type == 'inpaint':
         return StableDiffusionInpaintPipeline.from_pretrained(model_path, use_auth_token=hf_token,
                                                               torch_dtype=torch.float16)
     else:
-        raise ValueError(f'Invalid type: {type}')
+        raise ValueError(f'Invalid type: {inference_type}')
