@@ -80,10 +80,10 @@ def vertical_concat_images(images):
     return np.concatenate(images, axis=0)
 
 
-def create_hidden_param_row(subsection, width, height):
-    height = get_col_header_height(subsection, width, height,
+def create_hidden_param_row(hidden_params_string, width, height):
+    height = get_col_header_height(hidden_params_string, width, height,
                                    font=ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", 50))
-    return create_text_image(subsection, width, height, x_justify=0.01, wrap=True)
+    return create_text_image(hidden_params_string, width, height, x_justify=0.01, y_justify=0.01, wrap=True)
 
 
 def create_cols_title(title, width, height):
