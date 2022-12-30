@@ -125,6 +125,7 @@ def generate_images(args, images, masks):
                                 if not os.path.exists(folder):
                                     os.makedirs(folder)
                                 for idx, image in enumerate(images):
+                                    print(image)
                                     # try:
                                     pil_image = Image.open(image)
                                     pil_mask = Image.open(masks[idx])
