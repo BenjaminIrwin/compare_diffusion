@@ -21,8 +21,9 @@ def get_parameter_from_path(path, param_prefix):
 
 
 def load_files(paths, row_param, col_param):
-    row_param_prefix = row_param[0] + '_'
-    col_param_prefix = col_param[0] + '_'
+    # Get first two letters f row and col params
+    row_param_prefix = row_param[:2] + '_'
+    col_param_prefix = col_param[:2] + '_'
 
     # Create an empty dictionary to store the sections and subsections
     rows = {}

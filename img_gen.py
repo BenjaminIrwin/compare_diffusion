@@ -76,6 +76,7 @@ def generate_images(args, images, masks):
     inference_type = args['type']
     inpaint_full_res = args['inpaint_full_res']
     inpaint_full_res_padding = args['inpaint_full_res_padding']
+    steps_list = args['steps']
 
     output_counter = 0
 
@@ -85,60 +86,62 @@ def generate_images(args, images, masks):
             for negative_prompt in negative_prompts:
                 for cfg_scale in cfg_scale_list:
                     for denoising_strength in denoising_strength_list:
-                        for seed in seeds:
-                            generator = torch.Generator("cuda").manual_seed(seed)
-                            if inference_type == 'txt2img':
-                                folder = f'{output_path}/m_{model_path.split("/")[-1]}/p_{prompt}/' \
-                                         f'n_{negative_prompt}/c_{cfg_scale}/s_{seed}'
-                                if not os.path.exists(folder):
-                                    os.makedirs(folder)
-                                try:
-                                    # Call txt2img
-                                    output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator,
-                                                   negative_prompt=negative_prompt, height=height, width=width).images[
-                                        0]
-                                    # Generate image name as increment of previous image
-                                    output.save(folder + '/output_' + str(output_counter) + '.png')
-                                    output_counter += 1
-                                except Exception as e:
-                                    print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                        negative_prompt)
-                                          + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                                    print(e)
-                            else:
-                                folder = f'{output_path}/m_{model_path.split("/")[-1]}/p_{prompt}/' \
-                                         f'n_{negative_prompt}/c_{cfg_scale}/d_{denoising_strength}/s_{seed}'
-                                if not os.path.exists(folder):
-                                    os.makedirs(folder)
-                                for idx, image in enumerate(images):
-                                    print(image)
+                        for steps in steps_list:
+                            for seed in seeds:
+                                generator = torch.Generator("cuda").manual_seed(seed)
+                                if inference_type == 'txt2img':
+                                    folder = f'{output_path}/mo_{model_path.split("/")[-1]}/pr_{prompt}/' \
+                                             f'ne_{negative_prompt}/cf_{cfg_scale}/st_{steps}/se_{seed}'
+                                    if not os.path.exists(folder):
+                                        os.makedirs(folder)
                                     try:
-                                        pil_image = Image.open(image)
-                                        pil_mask = Image.open(masks[idx])
-                                        image_name = image.split('/')[-1]
-                                        if inference_type == 'inpaint':
-                                            if inpaint_full_res:
-                                                paste_to, pil_image, pil_mask = full_res_transform(
-                                                    inpaint_full_res_padding,
-                                                    pil_image,
-                                                    pil_mask)
-
-                                            output = model(prompt=prompt, image=pil_image.convert('RGB'),
-                                                           mask_image=pil_mask.convert('RGB'),
-                                                           guidance_scale=cfg_scale,
-                                                           generator=generator, height=height, width=width).images[0]
-                                            if inpaint_full_res:
-                                                output = apply_overlay(Image.open(image), paste_to, output)
-                                            output.save(folder + '/' + str(image_name))
-                                        elif inference_type == 'img2img':
-                                            output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
-                                                           generator=generator, strength=denoising_strength,
-                                                           height=height, width=width).images[0]
-                                            output.save(folder + '/' + str(image_name))
+                                        # Call txt2img
+                                        output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator,
+                                                       negative_prompt=negative_prompt, height=height, width=width,
+                                                       num_inference_steps=steps).images[0]
+                                        # Generate image name as increment of previous image
+                                        output.save(folder + '/output_' + str(output_counter) + '.png')
+                                        output_counter += 1
                                     except Exception as e:
                                         print('Error generating image with params: ' + str(prompt) + ' ' + str(
-                                            negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                            negative_prompt)
+                                              + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                         print(e)
+                                else:
+                                    folder = f'{output_path}/mo_{model_path.split("/")[-1]}/pr_{prompt}/' \
+                                             f'ne_{negative_prompt}/cf_{cfg_scale}/de_{denoising_strength}/st_{steps}/' \
+                                             f'se_{seed}'
+                                    if not os.path.exists(folder):
+                                        os.makedirs(folder)
+                                    for idx, image in enumerate(images):
+                                        print(image)
+                                        try:
+                                            pil_image = Image.open(image)
+                                            pil_mask = Image.open(masks[idx])
+                                            image_name = image.split('/')[-1]
+                                            if inference_type == 'inpaint':
+                                                if inpaint_full_res:
+                                                    paste_to, pil_image, pil_mask = full_res_transform(
+                                                        inpaint_full_res_padding,
+                                                        pil_image,
+                                                        pil_mask)
+
+                                                output = model(prompt=prompt, image=pil_image.convert('RGB'),
+                                                               mask_image=pil_mask.convert('RGB'),
+                                                               guidance_scale=cfg_scale, generator=generator,
+                                                               height=height, width=width, num_inference_steps=steps).images[0]
+                                                if inpaint_full_res:
+                                                    output = apply_overlay(Image.open(image), paste_to, output)
+                                                output.save(folder + '/' + str(image_name))
+                                            elif inference_type == 'img2img':
+                                                output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
+                                                               generator=generator, strength=denoising_strength,
+                                                               height=height, width=width,num_inference_steps=steps).images[0]
+                                                output.save(folder + '/' + str(image_name))
+                                        except Exception as e:
+                                            print('Error generating image with params: ' + str(prompt) + ' ' + str(
+                                                negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
+                                            print(e)
 
 
 def full_res_transform(inpaint_full_res_padding, pil_image, pil_mask):

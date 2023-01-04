@@ -84,7 +84,7 @@ def get_hidden_params(arguments):
     return params
 
 
-dim_choices = ['model', 'image', 'cfg_scale', 'denoising_strength', 'prompt', 'negative_prompt', 'seed']
+dim_choices = ['model', 'image', 'cfg_scale', 'denoising_strength', 'steps', 'prompt', 'negative_prompt', 'seed']
 
 parser = argparse.ArgumentParser(description='Compare Diffusion')
 parser.add_argument('--hf_token', type=str, required=True, help='Your Hugging Face token.')
@@ -100,6 +100,8 @@ parser.add_argument('--model', type=str, nargs='+', required=True, help='Selecte
 parser.add_argument('--cfg_scale', type=float, nargs='+', required=True, help='Selected cfg_scale(s).')
 parser.add_argument('--denoising_strength', type=float, nargs='*', default=[0.0],
                     help='Selected denoising_strength(s).')
+parser.add_argument('--inference_steps', type=int, nargs='*', default=[50],
+                    help='Selected steps.')
 parser.add_argument('--prompt', type=str, nargs='+', required=True, help='Selected prompt(s).')
 parser.add_argument('--negative_prompt', type=str, nargs='*', default=[''], help='Selected negative_prompt(s).')
 parser.add_argument('--seed', type=int, nargs='*', default=[1], help='Selected seed(s).')
