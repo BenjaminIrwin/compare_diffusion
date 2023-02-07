@@ -76,7 +76,7 @@ def generate_images(args, images, masks):
     inference_type = args['type']
     inpaint_full_res = args['inpaint_full_res']
     inpaint_full_res_padding = args['inpaint_full_res_padding']
-    steps_list = args['inference_steps']
+    steps_list = args['steps']
 
     output_counter = 0
 
