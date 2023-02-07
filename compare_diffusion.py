@@ -4,7 +4,7 @@ import warnings
 
 from PIL import Image
 
-from img_gen import generate_images
+# from img_gen import generate_images
 from pdf_gen import generate_pdf
 
 
@@ -84,7 +84,7 @@ def get_hidden_params(arguments):
     return params
 
 
-dim_choices = ['model', 'image', 'cfg_scale', 'denoising_strength', 'steps', 'prompt', 'negative_prompt', 'seed']
+dim_choices = ['model', 'image', 'cfg_scale', 'denoising_strength', 'inference_steps', 'prompt', 'negative_prompt', 'seed']
 
 parser = argparse.ArgumentParser(description='Compare Diffusion')
 parser.add_argument('--hf_token', type=str, required=True, help='Your Hugging Face token.')
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         elif args['type'] == 'inpaint':
             images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
 
-    generate_images(args, images, masks)
+    # generate_images(args, images, masks)
     hidden_params = get_hidden_params(args)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=args['output_path'])
