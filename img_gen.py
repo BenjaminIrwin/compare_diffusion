@@ -95,6 +95,8 @@ def generate_images(args, images, masks):
                                     if not os.path.exists(folder):
                                         os.makedirs(folder)
                                     try:
+                                        print('Generating image with params: ' + str(prompt) + ' ' + str(negative_prompt)
+                                              + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                         # Call txt2img
                                         output = model(prompt=prompt, guidance_scale=cfg_scale, generator=generator,
                                                        negative_prompt=negative_prompt, height=height, width=width,
@@ -120,6 +122,9 @@ def generate_images(args, images, masks):
                                             pil_mask = Image.open(masks[idx])
                                             image_name = image.split('/')[-1]
                                             if inference_type == 'inpaint':
+                                                print('Inpainting image with params: ' + str(prompt) + ' ' + str(
+                                                    negative_prompt)
+                                                      + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                                 if inpaint_full_res:
                                                     paste_to, pil_image, pil_mask = full_res_transform(
                                                         inpaint_full_res_padding,
@@ -134,6 +139,8 @@ def generate_images(args, images, masks):
                                                     output = apply_overlay(Image.open(image), paste_to, output)
                                                 output.save(folder + '/' + str(image_name))
                                             elif inference_type == 'img2img':
+                                                print('Generating image with params: ' + str(prompt) + ' ' + str(
+                                                    negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
                                                 output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
                                                                generator=generator, strength=denoising_strength,
                                                                height=height, width=width,num_inference_steps=steps).images[0]
