@@ -166,7 +166,9 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
                  generated_images_path='output'):
     font = ImageFont.truetype("/content/compare_diffusion/Monaco.ttf", 43)
     image_paths = get_all_images_in_subtree(generated_images_path)
+    print('Image paths: ', image_paths)
     files = load_files(image_paths, row_param, col_param)
+    print('Files: ', files)
     col_headers, row_headers = get_headers(files)
     col_header_height = get_col_header_height(str(max(col_headers, key=len)), width, height, font)
     row_header_width = get_row_header_width(str(max(row_headers, key=len)), height, width, font)
