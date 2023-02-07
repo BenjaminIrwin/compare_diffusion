@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
     print('Preparing PDF with rows: ' + args['rows'] + ' and columns: ' + args['cols'])
 
-    generate_images(args, images, masks)
+    # generate_images(args, images, masks)
     hidden_params = get_hidden_params(args)
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=args['output_path'])
