@@ -80,6 +80,11 @@ def generate_images(args, images, masks):
 
     output_counter = 0
 
+    print('Generating images...')
+
+    if not inference_type == 'txt2img' and len(images) == 0:
+        raise ValueError('No images provided for img2img/inpainting')
+
     for model_path in model_paths:
         model = get_model(hf_token, model_path, inference_type).to("cuda")
         for prompt in prompts:
