@@ -125,7 +125,7 @@ def generate_images(args, images, masks):
                                         try:
                                             pil_image = Image.open(image)
                                             pil_mask = Image.open(masks[idx])
-                                            image_name = image.split('/')[-1]
+                                            image_name = 'im_' + image.split('/')[-1]
                                             if inference_type == 'inpaint':
                                                 print('Inpainting image with params: ' + str(prompt) + ' ' + str(
                                                     negative_prompt)
