@@ -3,7 +3,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 def get_wrapped_text(text: str, font, line_length: int):
     lines = ['']
-    # text = text.replace('-', ' ').replace('_', ' ')
+    text = text.replace('-', ' ').replace('_', ' ')
     for word in text.split():
         line = f'{lines[-1]} {word}'.strip()
         if font.getlength(line) <= line_length:

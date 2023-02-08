@@ -128,7 +128,7 @@ def filter_paths_by_names(paths, names):
 
 
 def get_row_header_width(longest_row_header, image_height, image_width, font):
-    longest_row_header = longest_row_header #.replace('-', ' ').replace('_', ' ')
+    longest_row_header = longest_row_header.replace('-', ' ').replace('_', ' ')
     longest_word = max(longest_row_header.split(), key=len)
     longest_word_width = font.getsize(longest_word)[0]
     scale = 0.1
