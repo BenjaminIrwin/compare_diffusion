@@ -150,6 +150,7 @@ def get_col_header_height(longest_col_header, image_width, image_height, font):
     scale = 0.1
     found_height = False
     height = int(image_height * scale)
+    print('Image height: ', image_height)
     while not found_height:
         num_lines = get_wrapped_text(longest_col_header, font, image_width).count('\n') + 1
         height = num_lines * font.getsize(longest_col_header)[1]
@@ -158,6 +159,8 @@ def get_col_header_height(longest_col_header, image_width, image_height, font):
         else:
             scale += 0.1
             height = int(image_height * scale)
+            print('Increasing height to ', height)
+
     height += int(height * 0.05)
     return height
 
