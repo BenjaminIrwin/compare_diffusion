@@ -6,6 +6,7 @@ def get_wrapped_text(text: str, font, line_length: int):
     text = text.replace('-', ' ').replace('_', ' ')
     for word in text.split():
         line = f'{lines[-1]} {word}'.strip()
+        print('Checking if line is too long for line length: ', line, line_length)
         if font.getlength(line) <= line_length:
             lines[-1] = line
         else:
