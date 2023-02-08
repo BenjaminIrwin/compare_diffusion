@@ -126,8 +126,9 @@ if __name__ == "__main__":
             images, masks = clean(get_image_paths('input/images'), get_image_paths('input/masks'))
 
     print('Preparing PDF with rows: ' + args['rows'] + ' and columns: ' + args['cols'])
-
-    generate_images(args, images, masks)
+    print('Generating images...')
+    # generate_images(args, images, masks)
     hidden_params = get_hidden_params(args)
+    print('Generating PDF...')
     generate_pdf(args['cols'], args['rows'], args['width'], args['height'], hidden_params,
                  generated_images_path=args['output_path'])

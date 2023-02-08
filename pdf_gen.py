@@ -169,6 +169,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     print('Image paths: ', image_paths)
     files = load_files(image_paths, row_param, col_param)
     print('Files: ', files)
+    print('Preparing headers...')
     col_headers, row_headers = get_headers(files)
     col_header_height = get_col_header_height(str(max(col_headers, key=len)), width, height, font)
     row_header_width = get_row_header_width(str(max(row_headers, key=len)), height, width, font)
@@ -177,6 +178,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
     page_list = []
     page_rows = [cols_title, column_header_row]
     num_header_rows = len(page_rows)
+    print('Preparing images...')
     for row_header in row_headers:
         row = files[row_header]
         row_paths = []
@@ -201,6 +203,7 @@ def generate_pdf(col_param, row_param, width, height, hidden_params, rows_per_pa
         hidden_param_row = create_hidden_param_row(hidden_param_string, page_width, height)
         page = vertical_concat_images([hidden_param_row, page])
         final_pages.append(Image.fromarray(page))
+    print('Saving pdf...')
     if len(final_pages) > 1:
         final_pages[0].save('output.pdf', save_all=True, append_images=final_pages[1:], optimize=True)
     else:
