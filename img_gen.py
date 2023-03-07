@@ -136,7 +136,7 @@ def generate_images(args, images, masks):
                                                         pil_image,
                                                         pil_mask)
 
-                                                output = model(prompt=prompt, image=pil_image.convert('RGB'),
+                                                output = model(prompt=prompt, negative_prompt=negative_prompt, image=pil_image.convert('RGB'),
                                                                mask_image=pil_mask.convert('RGB'),
                                                                guidance_scale=cfg_scale, generator=generator,
                                                                height=height, width=width, num_inference_steps=steps).images[0]
@@ -146,7 +146,7 @@ def generate_images(args, images, masks):
                                             elif inference_type == 'img2img':
                                                 print('Generating image with params: ' + str(prompt) + ' ' + str(
                                                     negative_prompt) + ' ' + str(cfg_scale) + ' ' + str(denoising_strength))
-                                                output = model(prompt=prompt, image=pil_image, guidance_scale=cfg_scale,
+                                                output = model(prompt=prompt, negative_prompt=negative_prompt, image=pil_image, guidance_scale=cfg_scale,
                                                                generator=generator, strength=denoising_strength,
                                                                height=height, width=width,num_inference_steps=steps).images[0]
                                                 output.save(folder + '/' + str(image_name))
